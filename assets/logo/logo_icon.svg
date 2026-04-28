@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="_Слой_2" data-name="Слой 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 559.32 181.02">
+  <defs>
+    <style>
+      .cls-1, .cls-2 {
+        fill: #81a871;
+      }
+
+      .cls-3 {
+        letter-spacing: -.07em;
+      }
+
+      .cls-4 {
+        letter-spacing: -.07em;
+      }
+
+      .cls-5 {
+        letter-spacing: -.07em;
+      }
+
+      .cls-6 {
+        letter-spacing: -.08em;
+      }
+
+      .cls-7 {
+        letter-spacing: -.06em;
+      }
+
+      .cls-2 {
+        font-family: Montega-Regular, Montega;
+        font-size: 125.39px;
+      }
+
+      .cls-8 {
+        letter-spacing: -.04em;
+      }
+    </style>
+  </defs>
+  <g id="_Слой_1-2" data-name="Слой 1">
+    <g>
+      <path class="cls-1" d="M0,129.58s42.21.88,41.77-52.76c0,0,5.28,50.12,43.08,50.12,0,0-44.4,3.52-42.42,54.08,0,0,7.25-52.32-42.42-51.44Z"/>
+      <path class="cls-1" d="M87.05,16.59s.44,41.33-38.69,43.96c0,0,37.37-2.64,38.69,43.52,0,0,1.76-43.96,34.29-43.74,0,0-36.05-.66-34.29-43.74Z"/>
+      <path class="cls-1" d="M8.78,26.38S31.64,28.58,32.08,0c0,0-3.52,25.06,19.78,24.18,0,0-22.42-.88-21.54,25.5,0,0,1.32-23.74-21.54-23.3Z"/>
+    </g>
+    <text class="cls-2" transform="translate(121.34 128.92)"><tspan class="cls-3" x="0" y="0">A</tspan><tspan class="cls-6" x="75.86" y="0">s</tspan><tspan class="cls-5" x="126.39" y="0">t</tspan><tspan class="cls-8" x="169.27" y="0">r</tspan><tspan class="cls-3" x="230.21" y="0">e</tspan><tspan class="cls-4" x="296.04" y="0">l</tspan><tspan class="cls-7" x="328.77" y="0">l</tspan><tspan x="362.75" y="0">e</tspan></text>
+  </g>
+</svg>
