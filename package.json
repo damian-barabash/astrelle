@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "img": "node scripts/img.mjs",
+    "goats": "node scripts/goats.mjs",
     "brand": "node scripts/brand.mjs"
   },
   "dependencies": {

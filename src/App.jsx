@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useT, LangSwitch } from './i18n/index.jsx'
 import { useReveal } from './useReveal.js'
+import { Logo, Wordmark } from './components/Brand.jsx'
+import { Goat, LooseLoop, Burst, Kicker } from './components/Decor.jsx'
 import HeroMug from './three/HeroMug.jsx'
 import ClaySculpt from './three/ClaySculpt.jsx'
 import Kiln from './three/Kiln.jsx'
@@ -9,8 +11,8 @@ import ProcessTimeline from './blocks/ProcessTimeline.jsx'
 import Shrink from './blocks/Shrink.jsx'
 import StyledMap from './StyledMap.jsx'
 import InView from './InView.jsx'
+import Mascot from './Mascot.jsx'
 
-const LOGO = '/assets/logo/logo_text.svg'
 const IMG = (n) => `/assets/img/photo-${n}.webp`
 const IMG_SM = (n) => `/assets/img/photo-${n}-sm.webp`
 
@@ -26,16 +28,13 @@ function Topbar() {
   }, [])
   return (
     <header className={`topbar ${scrolled ? 'scrolled' : ''}`}>
-      <a href="#top" aria-label="Astrelle">
-        <img className="topbar__logo" src={LOGO} alt="Astrelle" />
+      <a className="topbar__brand" href="#top" aria-label="Astrelle">
+        <Logo />
       </a>
       <div className="topbar__actions">
         <LangSwitch />
-        <a className="btn btn--ghost" href="#booking">
-          {t('nav.cowork')}
-        </a>
-        <a className="btn btn--primary" href="#booking">
-          {t('nav.kurs')}
+        <a className="btn btn--primary topbar__cta" href="#booking">
+          {t('nav.book')}
         </a>
       </div>
     </header>
@@ -51,7 +50,7 @@ function Hero() {
         <HeroMug />
       </div>
       <span className="hero__place">{t('hero.place')}</span>
-      <img className="hero__wordmark" src={LOGO} alt="Astrelle" />
+      <Wordmark className="hero__wordmark" />
       <p className="hero__sub">{t('hero.sub')}</p>
       <div className="hero__cta">
         <a className="btn btn--primary" href="#booking">
@@ -72,9 +71,10 @@ function Value() {
   const points = t('value.points')
   return (
     <section className="section" id="value">
+      <Goat n={14} className="goat--deco goat--tr" />
       <div className="container">
         <div className="value__head reveal">
-          <span className="kicker">{t('value.kicker')}</span>
+          <Kicker vol="01">{t('value.kicker')}</Kicker>
           <h2 className="title">{t('value.title')}</h2>
           <p className="lead">{t('value.body')}</p>
         </div>
@@ -101,6 +101,7 @@ function Band() {
         <source srcSet={IMG(1)} media="(min-width: 720px)" />
         <img src={IMG_SM(1)} alt="" loading="lazy" />
       </picture>
+      <LooseLoop className="band__loop" />
       <div className="band__quote">{t('hero.tagline')}</div>
     </section>
   )
@@ -113,9 +114,10 @@ function ClayPlay() {
   const [glazed, setGlazed] = useState(false)
   return (
     <section className="section section--alt" id="clay">
+      <Goat n={9} className="goat--deco goat--bl" />
       <div className="container clay">
         <div className="reveal">
-          <span className="kicker">{t('clay.kicker')}</span>
+          <Kicker vol="03">{t('clay.kicker')}</Kicker>
           <h2 className="title">{t('clay.title')}</h2>
           <p className="lead">{t('clay.body')}</p>
           <div className="clay__actions">
@@ -178,7 +180,8 @@ function KilnBlock() {
         raf.current = requestAnimationFrame(tick)
       }
     }
-    const down = () => {
+    const down = (e) => {
+      e.preventDefault() // stop touch text-selection / callout
       holding.current = true
       start()
     }
@@ -188,9 +191,11 @@ function KilnBlock() {
     const btn = document.getElementById('kiln-hold')
     btn.addEventListener('pointerdown', down)
     window.addEventListener('pointerup', up)
+    window.addEventListener('pointercancel', up)
     return () => {
       btn.removeEventListener('pointerdown', down)
       window.removeEventListener('pointerup', up)
+      window.removeEventListener('pointercancel', up)
       cancelAnimationFrame(raf.current)
     }
   }, [])
@@ -201,9 +206,12 @@ function KilnBlock() {
 
   return (
     <section className="section kilnb" id="kiln">
+      <Goat n={12} className="goat--deco goat--tr" />
       <div className="container clay">
         <div className="reveal">
-          <span className="kicker kicker--wine">{t('kiln.kicker')}</span>
+          <Kicker vol="08" wine>
+            {t('kiln.kicker')}
+          </Kicker>
           <h2 className="title">{t('kiln.title')}</h2>
           <p className="lead">{t('kiln.body')}</p>
           <div className="kilnb__gauge">
@@ -213,7 +221,7 @@ function KilnBlock() {
             </div>
             <div className="kilnb__stage">{stages[stageIdx]}</div>
           </div>
-          <button id="kiln-hold" className="btn btn--wine btn--lg clay__reset" style={{ touchAction: 'none' }}>
+          <button id="kiln-hold" className="btn btn--wine btn--lg clay__reset no-select" style={{ touchAction: 'none' }}>
             🔥 {t('kiln.hold')}
           </button>
         </div>
@@ -242,9 +250,10 @@ function GlazeBlock() {
   const [tool, setTool] = useState('brush')
   return (
     <section className="section section--alt glazeb" id="glaze">
+      <Goat n={14} className="goat--deco goat--bl" />
       <div className="container clay">
         <div className="reveal">
-          <span className="kicker">{t('glaze.kicker')}</span>
+          <Kicker vol="10">{t('glaze.kicker')}</Kicker>
           <h2 className="title">{t('glaze.title')}</h2>
           <p className="lead">{t('glaze.body')}</p>
 
@@ -303,7 +312,9 @@ function Invitation() {
     <section className="section invite" id="invite">
       <div className="container">
         <div className="invite__head reveal">
-          <span className="kicker kicker--wine">{t('invite.kicker')}</span>
+          <Kicker vol="04" wine>
+            {t('invite.kicker')}
+          </Kicker>
           <h2 className="title">{t('invite.title')}</h2>
           <p className="lead">{t('invite.body')}</p>
         </div>
@@ -312,6 +323,7 @@ function Invitation() {
         <article className="feature reveal">
           <div className="feature__media">
             <img src={IMG(4)} alt="" loading="lazy" />
+            <LooseLoop className="feature__loop" />
           </div>
           <div className="feature__body">
             <span className="tag tag--wine">✦ {t('invite.featured')}</span>
@@ -321,6 +333,7 @@ function Invitation() {
             <a className="btn btn--wine btn--lg" href="#booking">
               {t('nav.kurs')}
             </a>
+            <Goat n={17} className="feature__goat" />
           </div>
         </article>
 
@@ -363,9 +376,10 @@ function ClayTypes() {
   const facts = t('types.facts')
   return (
     <section className="section section--alt" id="types">
+      <Goat n={3} className="goat--deco goat--bl" />
       <div className="container">
         <div className="value__head reveal">
-          <span className="kicker">{t('types.kicker')}</span>
+          <Kicker vol="06">{t('types.kicker')}</Kicker>
           <h2 className="title">{t('types.title')}</h2>
           <p className="lead">{t('types.body')}</p>
         </div>
@@ -415,7 +429,7 @@ function PriceCard({ data, goat, note }) {
           {note}
         </p>
       )}
-      {goat && <img className="price__goat" src={goat} alt="" loading="lazy" />}
+      {goat && <img className="price__goat" src={goat} alt="" loading="lazy" draggable="false" />}
     </div>
   )
 }
@@ -425,7 +439,7 @@ function Pricing() {
     <section className="section" id="pricing">
       <div className="container">
         <div className="value__head reveal">
-          <span className="kicker">{t('pricing.kicker')}</span>
+          <Kicker vol="09">{t('pricing.kicker')}</Kicker>
           <h2 className="title">{t('pricing.title')}</h2>
         </div>
         <div className="price__grid">
@@ -449,12 +463,16 @@ function Master() {
   const { t } = useT()
   return (
     <section className="section section--wine" id="master">
+      <Goat n={11} className="goat--deco goat--tr" />
       <div className="container master">
         <div className="master__photo reveal">
           <img src={IMG(3)} alt={t('master.name')} loading="lazy" />
+          <Burst className="master__burst" />
         </div>
         <div className="reveal">
-          <span className="kicker kicker--wine">{t('master.kicker')}</span>
+          <Kicker vol="02" wine>
+            {t('master.kicker')}
+          </Kicker>
           <div className="master__name">{t('master.name')}</div>
           <p className="lead">{t('master.body')}</p>
         </div>
@@ -470,7 +488,7 @@ function Booking() {
     <section className="section booking" id="booking">
       <div className="container">
         <div className="booking__head reveal">
-          <span className="kicker">{t('booking.kicker')}</span>
+          <Kicker vol="11">{t('booking.kicker')}</Kicker>
           <h2 className="title" style={{ margin: '0 auto' }}>
             {t('booking.title')}
           </h2>
@@ -486,6 +504,7 @@ function Booking() {
               {t('booking.coworkBtn')}
             </a>
           </div>
+          <Goat n={16} className="booking__goat" />
         </div>
       </div>
     </section>
@@ -500,7 +519,7 @@ function Footer() {
       <div className="container">
         <div className="footer__top">
           <div>
-            <img className="footer__logo" src={LOGO} alt="Astrelle" />
+            <Logo className="footer__logo" />
             <p className="footer__tag">{t('footer.tagline')}</p>
           </div>
           <div className="footer__addr">
@@ -511,6 +530,11 @@ function Footer() {
             <br />
             <LangSwitch />
           </div>
+        </div>
+        <div className="footer__goats">
+          {[1, 13, 8, 15, 6, 18].map((n) => (
+            <Goat key={n} n={n} className="footer__goat" />
+          ))}
         </div>
         <div className="footer__bottom">
           <span>© {new Date().getFullYear()} Astrelle · {t('footer.rights')}</span>
@@ -539,7 +563,6 @@ export default function App() {
 
   return (
     <div ref={root}>
-      <div className="grain" />
       <Topbar />
       <main className={`content ${fading ? 'content--fading' : ''}`}>
         <Hero />
@@ -557,6 +580,7 @@ export default function App() {
         <Booking />
         <Footer />
       </main>
+      <Mascot />
     </div>
   )
 }

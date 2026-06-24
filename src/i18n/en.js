@@ -2,6 +2,13 @@ export default {
   nav: {
     kurs: 'Book a class',
     cowork: 'Book coworking',
+    book: 'Book a class',
+  },
+
+  mascot: {
+    intro: 'Did you know?',
+    close: 'Close',
+    name: 'The Astrelle goat',
   },
 
   hero: {

@@ -2,6 +2,13 @@ export default {
   nav: {
     kurs: 'Записаться на мастер-класс',
     cowork: 'Записаться на коворкинг',
+    book: 'Записаться',
+  },
+
+  mascot: {
+    intro: 'А знаешь что?',
+    close: 'Закрыть',
+    name: 'Козочка Astrelle',
   },
 
   hero: {

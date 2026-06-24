@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useT } from '../i18n/index.jsx'
 import { CUP_BODY, CUP_HANDLE } from './mugPaths.js'
+import { Kicker, Goat } from '../components/Decor.jsx'
 
 const HEIGHTS = [0.1, 0.42, 0.8, 1, 1, 1, 1]
 const FILLS = ['#b7afa1', '#b7afa1', '#b7afa1', '#c3bbae', '#c08a5e', '#84a867', '#84a867']
@@ -48,9 +49,12 @@ export default function ProcessTimeline() {
 
   return (
     <section className="section section--alt process" id="process">
+      <Goat n={15} className="goat--deco goat--tr" />
       <div className="container">
         <div className="value__head reveal">
-          <span className="kicker kicker--wine">{t('process.kicker')}</span>
+          <Kicker vol="05" wine>
+            {t('process.kicker')}
+          </Kicker>
           <h2 className="title">{t('process.title')}</h2>
           <p className="lead">{t('process.body')}</p>
         </div>

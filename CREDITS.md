@@ -15,4 +15,10 @@ All from **Unsplash** (Unsplash License — free for commercial use, attribution
 Anne Nygård · cafeconcetto · Jocelyn Morales · Pew Nguyen · Tamara Harhai ·
 Taylor Heery · Tom Crew.
 
+## Goat mascots (`public/assets/maskot/goat-01..18.{png,webp}`)
+
+Sliced from an AI-generated icon sheet (OpenArt) into 18 individual transparent
+icons by `scripts/goats.mjs` (recoloured to the brand sage). Source sheet kept
+locally in `media-src/maskot/pack.jpg` (outside git).
+
 Original full-resolution sources are kept locally in `media-src/` (outside git).

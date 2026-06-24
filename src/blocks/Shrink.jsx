@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useT } from '../i18n/index.jsx'
 import { CUP_BODY, CUP_HANDLE } from './mugPaths.js'
+import { Kicker, Goat } from '../components/Decor.jsx'
 
 export default function Shrink() {
   const { t } = useT()
@@ -10,9 +11,12 @@ export default function Shrink() {
 
   return (
     <section className="section shrinkb" id="shrink">
+      <Goat n={7} className="goat--deco goat--br" />
       <div className="container shrinkb__grid">
         <div className="reveal">
-          <span className="kicker kicker--wine">{t('shrink.kicker')}</span>
+          <Kicker vol="07" wine>
+            {t('shrink.kicker')}
+          </Kicker>
           <h2 className="title">{t('shrink.title')}</h2>
           <p className="lead">{t('shrink.body')}</p>
           <div className="shrinkb__control">

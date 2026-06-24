@@ -2,6 +2,13 @@ export default {
   nav: {
     kurs: 'Zapisz się na kurs',
     cowork: 'Zapisz się na coworking',
+    book: 'Zapisz się',
+  },
+
+  mascot: {
+    intro: 'A wiesz, że…',
+    close: 'Zamknij',
+    name: 'Kózka Astrelle',
   },
 
   hero: {

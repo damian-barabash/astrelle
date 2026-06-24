@@ -90,17 +90,6 @@ a {
   border: 3px solid var(--cream-2);
 }
 
-/* grain */
-.grain {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 300;
-  opacity: 0.035;
-  mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-}
-
 /* ---- language cross-fade ---- */
 .content {
   transition: opacity 0.32s ease, filter 0.32s ease;
@@ -310,8 +299,15 @@ h2.title {
   margin-bottom: 18px;
 }
 .hero__wordmark {
-  width: min(440px, 78vw);
-  margin: 0 auto 22px;
+  display: block;
+  font-family: var(--serif);
+  font-optical-sizing: auto;
+  font-weight: 400;
+  color: var(--sage);
+  font-size: clamp(4.6rem, 16vw, 9.5rem);
+  line-height: 0.92;
+  letter-spacing: -0.025em;
+  margin: 0 auto 18px;
 }
 .hero__sub {
   font-size: clamp(1.05rem, 1.6vw, 1.25rem);
@@ -1313,9 +1309,13 @@ input[type='range']::-moz-range-thumb {
   flex-wrap: wrap;
 }
 .footer__logo {
-  height: 40px;
-  filter: brightness(0) invert(1);
-  opacity: 0.92;
+  font-size: 1.7rem;
+}
+.footer__logo .wordmark {
+  color: var(--cream);
+}
+.footer__logo .starmark {
+  fill: var(--sage);
 }
 .footer__tag {
   margin-top: 18px;
@@ -1437,5 +1437,407 @@ input[type='range']::-moz-range-thumb {
   .feature__media img,
   .invite__card img {
     transform: none;
+  }
+}
+
+/* ============================================================
+   EDITORIAL POSTER PASS — brand mark, hand-drawn motifs, goats,
+   the fact mascot, touch fixes, and a full mobile adaptation.
+   (Appended last so these rules win over earlier ones.)
+   ============================================================ */
+
+/* ---- prevent text selection / drag while interacting ---- */
+.no-select,
+.clay__canvas,
+.clay__canvas *,
+.galleryb__canvas,
+.process__rail,
+.shrinkb__svg,
+.glazeb__swatch,
+.glazeb__palette,
+.seg,
+.lang-switch,
+#kiln-hold {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+canvas {
+  touch-action: none;
+  display: block;
+}
+img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* ---- brand mark (live HTML wordmark, robust everywhere) ---- */
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42em;
+  line-height: 1;
+  white-space: nowrap;
+}
+.starmark {
+  width: 0.92em;
+  height: auto;
+  fill: var(--sage);
+  flex: none;
+}
+.wordmark {
+  font-family: var(--serif);
+  font-optical-sizing: auto;
+  font-weight: 420;
+  color: var(--sage);
+  letter-spacing: -0.012em;
+  line-height: 1;
+}
+.topbar__brand {
+  font-size: clamp(1.3rem, 2.3vw, 1.62rem);
+  display: inline-flex;
+}
+
+/* ---- topbar always legible (subtle veil even before scroll) ---- */
+.topbar {
+  background: rgba(245, 239, 232, 0.55);
+  backdrop-filter: blur(10px) saturate(1.05);
+}
+.topbar.scrolled {
+  background: rgba(245, 239, 232, 0.82);
+}
+.topbar__cta {
+  white-space: nowrap;
+}
+
+/* ---- poster section head: kicker + "Vol." marker ---- */
+.kicker-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+.kicker-row .kicker {
+  margin-bottom: 0;
+}
+.vol {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.05rem;
+  letter-spacing: 0.01em;
+  color: var(--wine);
+  opacity: 0.85;
+  flex: none;
+}
+
+/* ---- hand-drawn underline under every section title ---- */
+h2.title {
+  position: relative;
+}
+h2.title::after {
+  content: '';
+  display: block;
+  height: 13px;
+  width: clamp(120px, 38%, 230px);
+  margin-top: 16px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 22' preserveAspectRatio='none'%3E%3Cpath d='M4 13 C 52 4 96 18 150 10 S 252 5 296 14' fill='none' stroke='%237a2e3a' stroke-width='3.2' stroke-linecap='round'/%3E%3C/svg%3E")
+    no-repeat center / 100% 100%;
+  opacity: 0.85;
+}
+.booking__head h2.title::after {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ---- hand-drawn loose-loop + burst decorations ---- */
+.loop {
+  fill: none;
+  stroke: var(--wine);
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.9;
+  pointer-events: none;
+}
+.burst {
+  fill: var(--wine);
+}
+.band__loop {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  width: min(360px, 52vw);
+  height: auto;
+  transform: translate(-50%, -50%) rotate(-4deg);
+  stroke: rgba(246, 236, 233, 0.9);
+  opacity: 0.85;
+}
+.feature__media {
+  position: relative;
+}
+.feature__loop {
+  position: absolute;
+  z-index: 3;
+  bottom: 8%;
+  left: 50%;
+  width: min(260px, 68%);
+  height: auto;
+  transform: translateX(-50%) rotate(3deg);
+  stroke: rgba(246, 236, 233, 0.92);
+}
+.master__photo {
+  position: relative;
+}
+.master__burst {
+  position: absolute;
+  z-index: 3;
+  top: -16px;
+  right: -12px;
+  width: 56px;
+  height: 56px;
+}
+
+/* ---- scattered goats ---- */
+.container {
+  position: relative;
+  z-index: 1;
+}
+.goat {
+  display: block;
+}
+.goat--deco {
+  position: absolute;
+  z-index: 0;
+  width: clamp(76px, 9vw, 132px);
+  opacity: 0.42;
+  pointer-events: none;
+  filter: drop-shadow(0 10px 16px rgba(49, 61, 40, 0.12));
+}
+.goat--tr {
+  top: clamp(64px, 8vh, 120px);
+  right: clamp(10px, 4vw, 64px);
+}
+.goat--tl {
+  top: clamp(64px, 8vh, 120px);
+  left: clamp(10px, 4vw, 64px);
+}
+.goat--bl {
+  bottom: clamp(40px, 7vh, 96px);
+  left: clamp(10px, 4vw, 64px);
+}
+.goat--br {
+  bottom: clamp(40px, 7vh, 96px);
+  right: clamp(10px, 4vw, 64px);
+}
+/* inline goats inside specific blocks */
+.feature__body {
+  position: relative;
+}
+.feature__goat {
+  width: 86px;
+  margin-top: 26px;
+  opacity: 0.9;
+}
+.booking__goat {
+  width: 92px;
+  margin: 30px auto 0;
+  opacity: 0.9;
+}
+.footer__goats {
+  display: flex;
+  gap: clamp(14px, 3vw, 26px);
+  flex-wrap: wrap;
+  align-items: flex-end;
+  margin-top: 44px;
+  padding-top: 30px;
+  border-top: 1px solid rgba(245, 239, 232, 0.12);
+}
+.footer__goat {
+  width: clamp(42px, 8vw, 66px);
+  opacity: 0.66;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.footer__goat:hover {
+  opacity: 1;
+  transform: translateY(-4px);
+}
+
+/* ---- flatter, more editorial cards ---- */
+.card,
+.fact,
+.price__card,
+.type {
+  border: 1px solid var(--hair);
+}
+
+/* ---- the fact mascot ---- */
+.mascot {
+  position: fixed;
+  left: max(14px, env(safe-area-inset-left));
+  bottom: max(14px, env(safe-area-inset-bottom));
+  z-index: 150;
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  max-width: min(380px, 90vw);
+  transform: translateY(155%);
+  opacity: 0;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s ease;
+  pointer-events: none;
+}
+.mascot[data-open='true'] {
+  transform: none;
+  opacity: 1;
+  pointer-events: auto;
+}
+.mascot__goat {
+  width: 78px;
+  height: auto;
+  flex: none;
+  filter: drop-shadow(0 10px 16px rgba(49, 61, 40, 0.22));
+  animation: mascotBob 3.4s ease-in-out infinite;
+}
+@keyframes mascotBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+.mascot__bubble {
+  position: relative;
+  background: var(--paper);
+  border: 1px solid var(--hair);
+  border-radius: 18px 18px 18px 6px;
+  padding: 14px 30px 15px 17px;
+  box-shadow: 0 26px 54px -28px rgba(49, 61, 40, 0.55);
+}
+.mascot__bubble::after {
+  content: '';
+  position: absolute;
+  left: -7px;
+  bottom: 13px;
+  width: 13px;
+  height: 13px;
+  background: var(--paper);
+  border-left: 1px solid var(--hair);
+  border-bottom: 1px solid var(--hair);
+  transform: rotate(45deg);
+}
+.mascot__intro {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--wine);
+}
+.mascot__fact {
+  margin-top: 6px;
+  font-size: 0.94rem;
+  line-height: 1.5;
+  color: var(--ink);
+  max-width: 32ch;
+}
+.mascot__close {
+  position: absolute;
+  top: 5px;
+  right: 6px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 1.15rem;
+  line-height: 1;
+  color: var(--ink-soft);
+  display: grid;
+  place-items: center;
+}
+.mascot__close:hover {
+  background: var(--sage-soft);
+  color: var(--ink);
+}
+
+/* ============================================================
+   RESPONSIVE — tablet & phone
+   ============================================================ */
+@media (max-width: 940px) {
+  .goat--deco {
+    width: clamp(60px, 16vw, 100px);
+    opacity: 0.36;
+  }
+}
+
+@media (max-width: 700px) {
+  .topbar {
+    background: rgba(245, 239, 232, 0.88);
+    backdrop-filter: blur(12px) saturate(1.05);
+    box-shadow: 0 1px 0 var(--hair);
+    padding: 12px var(--pad);
+    gap: 10px;
+  }
+  .topbar.scrolled {
+    padding: 10px var(--pad);
+  }
+  /* hero: center the column, keep the mug clear of the bar */
+  .hero {
+    justify-content: center;
+    padding-top: 76px;
+  }
+  .hero__stage {
+    width: min(460px, 92vw);
+    height: min(42svh, 380px);
+    margin-top: 0;
+  }
+  .hero__wordmark {
+    font-size: clamp(3.6rem, 22vw, 6.2rem);
+  }
+  .hero__scroll {
+    margin-top: 30px;
+  }
+  /* feature banner reads tighter on a phone */
+  .feature__media {
+    min-height: 230px;
+  }
+  .feature__body {
+    padding: 32px 26px 34px;
+  }
+  .feature__goat {
+    position: absolute;
+    right: 22px;
+    bottom: 26px;
+    width: 64px;
+    margin: 0;
+  }
+  .goat--deco {
+    width: clamp(52px, 18vw, 84px);
+    opacity: 0.32;
+  }
+  h2.title::after {
+    width: clamp(110px, 50%, 200px);
+  }
+  .mascot__goat {
+    width: 62px;
+  }
+  .mascot__fact {
+    font-size: 0.88rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .topbar__brand {
+    font-size: 1.18rem;
+  }
+  .topbar__actions {
+    gap: 8px;
+  }
+  .topbar .btn {
+    padding: 0.6em 0.95em;
+    font-size: 0.74rem;
+  }
+  .lang-switch button {
+    padding: 0.4em 0.58em;
+    font-size: 0.64rem;
+  }
+  .vol {
+    font-size: 0.92rem;
   }
 }
