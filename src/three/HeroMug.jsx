@@ -9,7 +9,7 @@ function Model() {
     if (group.current) group.current.rotation.y += dt * 0.5
   })
   return (
-    <group ref={group} scale={1.35}>
+    <group ref={group} scale={2.5}>
       <Center>
         <primitive object={scene} />
       </Center>
@@ -22,7 +22,7 @@ useGLTF.preload('/assets/3d/id_1.glb')
 export default function HeroMug() {
   return (
     <Canvas
-      camera={{ position: [0, 0.2, 2.8], fov: 32 }}
+      camera={{ position: [0, 0.25, 3.05], fov: 32 }}
       dpr={[1, 2]}
       gl={{ antialias: true, alpha: true }}
       style={{ background: 'transparent' }}
@@ -33,7 +33,7 @@ export default function HeroMug() {
       <Suspense fallback={null}>
         <Model />
         <Environment preset="city" />
-        <ContactShadows position={[0, -1.35, 0]} opacity={0.28} scale={6} blur={2.6} far={3} color="#5f7e48" />
+        <ContactShadows position={[0, -2.5, 0]} opacity={0.26} scale={11} blur={3} far={5} color="#5f7e48" />
       </Suspense>
     </Canvas>
   )

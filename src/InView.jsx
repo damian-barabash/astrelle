@@ -8,10 +8,7 @@ export default function InView({ children, rootMargin = '300px' }) {
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    const io = new IntersectionObserver(
-      ([e]) => setShow(e.isIntersecting),
-      { rootMargin }
-    )
+    const io = new IntersectionObserver(([e]) => setShow(e.isIntersecting), { rootMargin })
     io.observe(el)
     return () => io.disconnect()
   }, [rootMargin])

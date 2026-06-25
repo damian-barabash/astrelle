@@ -71,7 +71,7 @@ function Value() {
   const points = t('value.points')
   return (
     <section className="section" id="value">
-      <Goat n={14} className="goat--deco goat--tr" />
+      <Goat n={14} className="goat--deco goat--tr" style={{ '--gty': '18px', '--gr': '-6deg' }} />
       <div className="container">
         <div className="value__head reveal">
           <Kicker vol="01">{t('value.kicker')}</Kicker>
@@ -114,7 +114,7 @@ function ClayPlay() {
   const [glazed, setGlazed] = useState(false)
   return (
     <section className="section section--alt" id="clay">
-      <Goat n={9} className="goat--deco goat--bl" />
+      <Goat n={9} className="goat--deco goat--bl" style={{ '--gty': '-14px', '--gr': '7deg' }} />
       <div className="container clay">
         <div className="reveal">
           <Kicker vol="03">{t('clay.kicker')}</Kicker>
@@ -206,7 +206,7 @@ function KilnBlock() {
 
   return (
     <section className="section kilnb" id="kiln">
-      <Goat n={12} className="goat--deco goat--tr" />
+      <Goat n={12} className="goat--deco goat--tr" style={{ '--gty': '40px', '--gr': '5deg' }} />
       <div className="container clay">
         <div className="reveal">
           <Kicker vol="08" wine>
@@ -250,7 +250,7 @@ function GlazeBlock() {
   const [tool, setTool] = useState('brush')
   return (
     <section className="section section--alt glazeb" id="glaze">
-      <Goat n={14} className="goat--deco goat--bl" />
+      <Goat n={14} className="goat--deco goat--bl" style={{ '--gty': '8px', '--gr': '-8deg' }} />
       <div className="container clay">
         <div className="reveal">
           <Kicker vol="10">{t('glaze.kicker')}</Kicker>
@@ -376,7 +376,7 @@ function ClayTypes() {
   const facts = t('types.facts')
   return (
     <section className="section section--alt" id="types">
-      <Goat n={3} className="goat--deco goat--bl" />
+      <Goat n={3} className="goat--deco goat--bl" style={{ '--gty': '-20px', '--gr': '6deg' }} />
       <div className="container">
         <div className="value__head reveal">
           <Kicker vol="06">{t('types.kicker')}</Kicker>
@@ -463,7 +463,7 @@ function Master() {
   const { t } = useT()
   return (
     <section className="section section--wine" id="master">
-      <Goat n={11} className="goat--deco goat--tr" />
+      <Goat n={11} className="goat--deco goat--tr" style={{ '--gty': '28px', '--gr': '-5deg' }} />
       <div className="container master">
         <div className="master__photo reveal">
           <img src={IMG(3)} alt={t('master.name')} loading="lazy" />
@@ -545,9 +545,118 @@ function Footer() {
   )
 }
 
+// One stacked block: a tall .panel (scroll runway) whose .panel__pin sticks to
+// the viewport while .panel__inner translates up to reveal the block's content;
+// the next .panel overlaps this one (negative margin) and rides up over it.
+function Panel({ children }) {
+  return (
+    <div className="panel">
+      <div className="panel__pin">
+        <div className="panel__inner">{children}</div>
+      </div>
+    </div>
+  )
+}
+
+// Capture-stack controller. On desktop + motion-safe it adds `.stacked` to
+// .content and, per block: sizes the panel to (content height + one viewport of
+// "ride"), pins it, and on scroll translates the inner up — first to read the
+// block fully, then a gentle extra lift as the next block covers it. The next
+// block's -100vh margin makes it overlap and ride up over this one.
+function useStack() {
+  useEffect(() => {
+    const desktop = window.matchMedia('(min-width: 941px)')
+    const calm = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const content = document.querySelector('.content')
+    if (!content) return
+    // `stacked` lives on <html> — React owns .content's className (it toggles
+    // the language cross-fade class) and would clobber a class set there.
+    const docEl = document.documentElement
+    const isStacked = () => docEl.classList.contains('stacked')
+    let panels = []
+    let raf = 0
+    let ro = null
+
+    const clearAll = () => {
+      docEl.classList.remove('stacked')
+      panels.forEach((p) => {
+        p.style.height = ''
+        const inner = p.querySelector('.panel__inner')
+        if (inner) inner.style.transform = ''
+      })
+      ro?.disconnect()
+    }
+    const layout = () => {
+      const vh = window.innerHeight
+      panels.forEach((p, i) => {
+        const inner = p.querySelector('.panel__inner')
+        const ih = inner.scrollHeight // >= vh via min-height:100vh
+        const read = Math.max(0, ih - vh)
+        const ride = i === panels.length - 1 ? 0 : vh // last block: nothing covers it
+        p.style.height = ih + ride + 'px'
+        p.dataset.read = String(read)
+        p.dataset.ride = String(ride)
+      })
+    }
+    const update = () => {
+      raf = 0
+      panels.forEach((p) => {
+        const inner = p.querySelector('.panel__inner')
+        const read = +p.dataset.read || 0
+        const ride = +p.dataset.ride || 0
+        const top = p.getBoundingClientRect().top
+        const scrolled = Math.min(Math.max(-top, 0), read + ride)
+        const readT = Math.min(scrolled, read) // scroll the content through
+        const lift = Math.max(0, scrolled - read) * 0.42 // drift up while covered
+        inner.style.transform = 'translateY(' + -(readT + lift) + 'px)'
+      })
+    }
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update)
+    }
+    const relayout = () => {
+      if (!isStacked()) return
+      layout()
+      update()
+    }
+    const setup = () => {
+      cancelAnimationFrame(raf)
+      raf = 0
+      clearAll()
+      if (desktop.matches && !calm.matches) {
+        docEl.classList.add('stacked')
+        panels = Array.from(content.querySelectorAll(':scope > .panel'))
+        layout()
+        update()
+        // content height shifts (fonts, images, language switch) → relayout
+        ro = new ResizeObserver(relayout)
+        panels.forEach((p) => ro.observe(p.querySelector('.panel__inner')))
+      } else {
+        panels = []
+      }
+    }
+    setup()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', relayout)
+    window.addEventListener('load', relayout)
+    desktop.addEventListener('change', setup)
+    calm.addEventListener('change', setup)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', relayout)
+      window.removeEventListener('load', relayout)
+      desktop.removeEventListener('change', setup)
+      calm.removeEventListener('change', setup)
+      cancelAnimationFrame(raf)
+      clearAll()
+    }
+  }, [])
+}
+
 export default function App() {
   const root = useReveal()
   const { lang } = useT()
+  useStack()
   // soft cross-fade on language change (no remount → no jank)
   const [fading, setFading] = useState(false)
   const first = useRef(true)
@@ -565,20 +674,20 @@ export default function App() {
     <div ref={root}>
       <Topbar />
       <main className={`content ${fading ? 'content--fading' : ''}`}>
-        <Hero />
-        <Value />
-        <Master />
-        <Band />
-        <ClayPlay />
-        <Invitation />
-        <ProcessTimeline />
-        <ClayTypes />
-        <Shrink />
-        <KilnBlock />
-        <Pricing />
-        <GlazeBlock />
-        <Booking />
-        <Footer />
+        <Panel><Hero /></Panel>
+        <Panel><Value /></Panel>
+        <Panel><Master /></Panel>
+        <Panel><Band /></Panel>
+        <Panel><ClayPlay /></Panel>
+        <Panel><Invitation /></Panel>
+        <Panel><ProcessTimeline /></Panel>
+        <Panel><ClayTypes /></Panel>
+        <Panel><Shrink /></Panel>
+        <Panel><KilnBlock /></Panel>
+        <Panel><Pricing /></Panel>
+        <Panel><GlazeBlock /></Panel>
+        <Panel><Booking /></Panel>
+        <Panel><Footer /></Panel>
       </main>
       <Mascot />
     </div>

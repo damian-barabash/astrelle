@@ -16,10 +16,23 @@ function pick(obj, pathStr) {
   return pathStr.split('.').reduce((acc, k) => (acc == null ? acc : acc[k]), obj)
 }
 
+// First visit: match the device language. ru / pl / en are supported as-is;
+// anything else (e.g. French) falls back to Polish. The switcher still lets the
+// visitor change it, and that choice is remembered.
+function detectLang() {
+  try {
+    const nav = navigator.language || (navigator.languages && navigator.languages[0]) || 'pl'
+    const base = nav.toLowerCase().split('-')[0]
+    return DICTS[base] ? base : 'pl'
+  } catch {
+    return 'pl'
+  }
+}
+
 export function LangProvider({ children }) {
   const [lang, setLang] = useState(() => {
     const saved = typeof localStorage !== 'undefined' && localStorage.getItem('astrelle_lang')
-    return saved && DICTS[saved] ? saved : 'ru'
+    return saved && DICTS[saved] ? saved : detectLang()
   })
 
   useEffect(() => {

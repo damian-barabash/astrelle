@@ -28,7 +28,8 @@
   --r-sm: 14px;
   --maxw: 1240px;
   --pad: clamp(22px, 5vw, 56px);
-  --serif: 'Fraunces', 'Cormorant Garamond', Georgia, serif;
+  /* couture high-contrast Garamond — full Cyrillic, unlike Fraunces */
+  --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
   --sans: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
@@ -49,13 +50,14 @@ body {
   color: var(--ink);
   font-family: var(--sans);
   font-weight: 400;
-  font-size: 17px;
-  line-height: 1.72;
-  letter-spacing: 0.005em;
+  font-size: 16.5px;
+  line-height: 1.75;
+  letter-spacing: 0.004em;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   font-feature-settings: 'kern', 'liga', 'calt';
-  overflow-x: hidden;
+  /* clip (not hidden) so sticky panels keep working — hidden forces a y scroll container */
+  overflow-x: clip;
 }
 ::selection {
   background: var(--wine);
@@ -109,12 +111,55 @@ a {
 .section {
   padding: clamp(110px, 15vw, 230px) 0;
   position: relative;
+  /* opaque so each panel cleanly occludes the one it slides over */
+  background: var(--cream);
 }
 .section--alt {
   background: var(--cream-2);
 }
 .section--wine {
   background: linear-gradient(180deg, var(--cream), #efe3e1 60%, var(--cream));
+}
+
+/* =========================================================================
+   Capture-stack scroll (desktop, motion-safe) — see useStack() in App.jsx.
+   Every block is wrapped in .panel > .panel__pin > .panel__inner. Each block
+   scrolls through fully (its inner translates up while the block is pinned to
+   the viewport), then the NEXT block rides up OVER it from the bottom and
+   carries it away — the covered block does NOT recede, it just gets covered and
+   drifts up. The overlap is the next panel's negative margin; the pin + clip is
+   .panel__pin; JS sizes each panel's runway and translates the inner.
+   Activated only by the `.stacked` class (added by JS on desktop + motion-safe);
+   without it the panels are plain blocks → a normal scrolling page (mobile,
+   reduced-motion, pre-hydration). ========================================== */
+.stacked .panel {
+  position: relative;
+  z-index: 0;
+}
+.stacked .panel + .panel {
+  margin-top: -100vh; /* overlap the previous block's ride zone */
+}
+.stacked .panel__pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+.stacked .panel__inner {
+  min-height: 100vh;
+  will-change: transform;
+}
+/* a full-bleed image band should fill the pinned viewport, not leave a gap */
+.stacked .panel__inner > .band {
+  height: 100vh;
+}
+/* the footer is shorter than the viewport — sit it at the bottom of the final
+   pinned frame so the page bottoms out on it (the previous block shows behind,
+   being covered) */
+.stacked .panel:last-child .panel__inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
 /* shared section head */
@@ -150,13 +195,12 @@ a {
 
 h2.title {
   font-family: var(--serif);
-  font-optical-sizing: auto;
-  font-weight: 380;
-  font-size: clamp(2.3rem, 5vw, 4rem);
+  font-weight: 500;
+  font-size: clamp(2.7rem, 5.8vw, 4.9rem);
   line-height: 1.04;
-  letter-spacing: -0.018em;
+  letter-spacing: -0.005em;
   color: var(--ink);
-  max-width: 17ch;
+  max-width: 16ch;
   text-wrap: balance;
 }
 .lead {
@@ -286,9 +330,9 @@ h2.title {
   background: radial-gradient(130% 95% at 50% 4%, var(--cream) 38%, var(--cream-3) 100%);
 }
 .hero__stage {
-  width: min(760px, 96vw);
-  height: min(64svh, 580px);
-  margin-top: 9svh;
+  width: min(820px, 98vw);
+  height: min(60svh, 600px);
+  margin-top: 3svh;
 }
 .hero__place {
   font-size: 0.74rem;
@@ -301,12 +345,11 @@ h2.title {
 .hero__wordmark {
   display: block;
   font-family: var(--serif);
-  font-optical-sizing: auto;
-  font-weight: 400;
+  font-weight: 500;
   color: var(--sage);
-  font-size: clamp(4.6rem, 16vw, 9.5rem);
+  font-size: clamp(4.6rem, 13vw, 8.6rem);
   line-height: 0.92;
-  letter-spacing: -0.025em;
+  letter-spacing: 0.005em;
   margin: 0 auto 18px;
 }
 .hero__sub {
@@ -1487,10 +1530,9 @@ img {
 }
 .wordmark {
   font-family: var(--serif);
-  font-optical-sizing: auto;
-  font-weight: 420;
+  font-weight: 500;
   color: var(--sage);
-  letter-spacing: -0.012em;
+  letter-spacing: 0.01em;
   line-height: 1;
 }
 .topbar__brand {
@@ -1615,6 +1657,8 @@ h2.title::after {
   opacity: 0.42;
   pointer-events: none;
   filter: drop-shadow(0 10px 16px rgba(49, 61, 40, 0.12));
+  /* per-instance scatter: nudge + tilt so they don't sit on an obvious grid */
+  transform: translate(var(--gtx, 0px), var(--gty, 0px)) rotate(var(--gr, 0deg));
 }
 .goat--tr {
   top: clamp(64px, 8vh, 120px);
@@ -1631,6 +1675,33 @@ h2.title::after {
 .goat--br {
   bottom: clamp(40px, 7vh, 96px);
   right: clamp(10px, 4vw, 64px);
+}
+/* On desktop, tuck the goats just outside the content column (in the gutter)
+   so they read as belonging to the block — close to it, never over the text.
+   --gutter = the empty space between the viewport edge and the content. */
+@media (min-width: 941px) {
+  .goat--deco {
+    /* sit fully in the side gutter — inner edge at the content column, so the
+       goat is right beside the block but never over it (even cards that fill
+       the whole content width, like the kiln/glaze 3D stages). */
+    --gutter: max(var(--pad), calc((100% - var(--maxw)) / 2 - clamp(76px, 9vw, 132px) + 8px));
+  }
+  .goat--tr {
+    top: clamp(150px, 19vh, 250px);
+    right: var(--gutter);
+  }
+  .goat--tl {
+    top: clamp(150px, 19vh, 250px);
+    left: var(--gutter);
+  }
+  .goat--bl {
+    bottom: clamp(56px, 9vh, 130px);
+    left: var(--gutter);
+  }
+  .goat--br {
+    bottom: clamp(56px, 9vh, 130px);
+    right: var(--gutter);
+  }
 }
 /* inline goats inside specific blocks */
 .feature__body {

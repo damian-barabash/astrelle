@@ -49,7 +49,7 @@ export default function ProcessTimeline() {
 
   return (
     <section className="section section--alt process" id="process">
-      <Goat n={15} className="goat--deco goat--tr" />
+      <Goat n={15} className="goat--deco goat--tr" style={{ '--gty': '20px', '--gr': '7deg' }} />
       <div className="container">
         <div className="value__head reveal">
           <Kicker vol="05" wine>

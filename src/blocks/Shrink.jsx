@@ -11,7 +11,7 @@ export default function Shrink() {
 
   return (
     <section className="section shrinkb" id="shrink">
-      <Goat n={7} className="goat--deco goat--br" />
+      <Goat n={7} className="goat--deco goat--br" style={{ '--gty': '-10px', '--gr': '-6deg' }} />
       <div className="container shrinkb__grid">
         <div className="reveal">
           <Kicker vol="07" wine>

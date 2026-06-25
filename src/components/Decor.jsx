@@ -39,7 +39,7 @@ export function Burst({ className = '' }) {
 }
 
 // a scattered mascot goat (1..18). Decorative — empty alt.
-export function Goat({ n = 1, className = '' }) {
+export function Goat({ n = 1, className = '', style }) {
   const id = String(n).padStart(2, '0')
   return (
     <img
@@ -49,6 +49,7 @@ export function Goat({ n = 1, className = '' }) {
       aria-hidden="true"
       loading="lazy"
       draggable="false"
+      style={style}
     />
   )
 }
