@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { useT, LangSwitch } from './i18n/index.jsx'
+import { fetchGallery } from './lib/supabase.js'
+import { initAnalytics } from './lib/analytics.js'
+import StudioGallery from './blocks/StudioGallery.jsx'
+import BookingCalendar from './blocks/BookingCalendar.jsx'
 import { useReveal } from './useReveal.js'
 import { Logo, Wordmark } from './components/Brand.jsx'
 import { Goat, LooseLoop, Burst, Kicker } from './components/Decor.jsx'
@@ -435,6 +439,8 @@ function PriceCard({ data, goat, note }) {
 }
 function Pricing() {
   const { t } = useT()
+  const groups = t('pricing.groups') || []
+  const rest = groups.slice(1)
   return (
     <section className="section" id="pricing">
       <div className="container">
@@ -443,15 +449,21 @@ function Pricing() {
           <h2 className="title">{t('pricing.title')}</h2>
         </div>
         <div className="price__grid">
-          <PriceCard data={t('pricing.coworking')} goat="/assets/maskot/goat_coin.webp" />
-          <div className="price__col">
-            <PriceCard data={t('pricing.firing')} />
-            <PriceCard
-              data={t('pricing.course')}
-              note={t('pricing.course.note')}
-              goat="/assets/maskot/goat_potter.webp"
-            />
-          </div>
+          {groups[0] && (
+            <PriceCard data={groups[0]} note={groups[0].note} goat="/assets/maskot/goat_coin.webp" />
+          )}
+          {rest.length > 0 && (
+            <div className="price__col">
+              {rest.map((g, i) => (
+                <PriceCard
+                  key={i}
+                  data={g}
+                  note={g.note}
+                  goat={i === rest.length - 1 ? '/assets/maskot/goat_potter.webp' : undefined}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </section>
@@ -475,36 +487,6 @@ function Master() {
           </Kicker>
           <div className="master__name">{t('master.name')}</div>
           <p className="lead">{t('master.body')}</p>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-/* ---------------- Booking ---------------- */
-function Booking() {
-  const { t } = useT()
-  return (
-    <section className="section booking" id="booking">
-      <div className="container">
-        <div className="booking__head reveal">
-          <Kicker vol="11">{t('booking.kicker')}</Kicker>
-          <h2 className="title" style={{ margin: '0 auto' }}>
-            {t('booking.title')}
-          </h2>
-          <p className="lead">{t('booking.body')}</p>
-        </div>
-        <div className="booking__placeholder reveal">
-          <span className="booking__cal">{t('booking.soon')}</span>
-          <div className="booking__cta">
-            <a className="btn btn--primary" href="#booking">
-              {t('booking.kursBtn')}
-            </a>
-            <a className="btn btn--ghost" href="#booking">
-              {t('booking.coworkBtn')}
-            </a>
-          </div>
-          <Goat n={16} className="booking__goat" />
         </div>
       </div>
     </section>
@@ -563,7 +545,7 @@ function Panel({ children }) {
 // "ride"), pins it, and on scroll translates the inner up — first to read the
 // block fully, then a gentle extra lift as the next block covers it. The next
 // block's -100vh margin makes it overlap and ride up over this one.
-function useStack() {
+function useStack(dep) {
   useEffect(() => {
     const desktop = window.matchMedia('(min-width: 941px)')
     const calm = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -579,6 +561,7 @@ function useStack() {
 
     const clearAll = () => {
       docEl.classList.remove('stacked')
+      docEl.style.removeProperty('--vh')
       panels.forEach((p) => {
         p.style.height = ''
         const inner = p.querySelector('.panel__inner')
@@ -590,6 +573,9 @@ function useStack() {
     }
     const layout = () => {
       const vh = window.innerHeight
+      // drive the pin/margin heights from the REAL viewport so CSS (var(--vh)) and
+      // the JS transforms agree — critical on mobile where 100vh ≠ innerHeight.
+      docEl.style.setProperty('--vh', vh + 'px')
       panels.forEach((p, i) => {
         const inner = p.querySelector('.panel__inner')
         const ih = inner.scrollHeight // >= vh via min-height:100vh
@@ -647,7 +633,8 @@ function useStack() {
       cancelAnimationFrame(raf)
       raf = 0
       clearAll()
-      if (desktop.matches && !calm.matches) {
+      // Enabled on every screen size now (mobile + tablet too) — only reduced-motion opts out.
+      if (!calm.matches) {
         docEl.classList.add('stacked')
         panels = Array.from(content.querySelectorAll(':scope > .panel'))
         layout()
@@ -674,13 +661,20 @@ function useStack() {
       cancelAnimationFrame(raf)
       clearAll()
     }
-  }, [])
+  }, [dep]) // re-run when the panel set changes (e.g. studio gallery appears)
 }
 
 export default function App() {
   const root = useReveal()
   const { lang } = useT()
-  useStack()
+  const [gallery, setGallery] = useState([])
+  useEffect(() => {
+    let alive = true
+    fetchGallery().then((rows) => alive && setGallery(rows)).catch(() => {})
+    return () => { alive = false }
+  }, [])
+  useEffect(() => initAnalytics(), [])
+  useStack(gallery.length > 0)
   // soft cross-fade on language change (no remount → no jank)
   const [fading, setFading] = useState(false)
   const first = useRef(true)
@@ -701,6 +695,7 @@ export default function App() {
         <Panel><Hero /></Panel>
         <Panel><Value /></Panel>
         <Panel><Master /></Panel>
+        {gallery.length > 0 && <Panel><StudioGallery items={gallery} /></Panel>}
         <Panel><Band /></Panel>
         <Panel><ClayPlay /></Panel>
         <Panel><Invitation /></Panel>
@@ -710,7 +705,7 @@ export default function App() {
         <Panel><KilnBlock /></Panel>
         <Panel><Pricing /></Panel>
         <Panel><GlazeBlock /></Panel>
-        <Panel><Booking /></Panel>
+        <Panel><BookingCalendar /></Panel>
         <Panel><Footer /></Panel>
       </main>
       <Mascot />

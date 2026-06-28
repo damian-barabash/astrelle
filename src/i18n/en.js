@@ -128,31 +128,35 @@ export default {
   pricing: {
     kicker: 'Pricing',
     title: 'Clear pricing',
-    coworking: {
-      title: 'Coworking',
-      rows: [
-        { l: 'One hour', r: '35 zł' },
-        { l: 'Monthly pass · once a week', r: '280 zł' },
-        { l: 'Monthly pass · twice a week', r: '500 zł' },
-        { l: 'Monthly pass · three times a week', r: '700 zł' },
-        { l: 'Unlimited', r: '1150 zł' },
-      ],
-    },
-    firing: {
-      title: 'Firing',
-      rows: [
-        { l: 'Bisque · 1 kg', r: '23 zł' },
-        { l: 'Glaze · 1 kg', r: '48 zł' },
-      ],
-    },
-    course: {
-      title: 'Course',
-      rows: [
-        { l: '4 sessions · 3 pieces', r: '950 zł' },
-        { l: '8 sessions · 5 pieces', r: '1500 zł' },
-      ],
-      note: 'The course price includes everything you need: clay, engobes, glaze and two firings. You create your ceramic piece — we take care of the whole process and the final finish.',
-    },
+    groups: [
+      {
+        title: 'Coworking',
+        rows: [
+          { l: 'One hour', r: '35 zł' },
+          { l: 'Monthly pass · once a week', r: '280 zł' },
+          { l: 'Monthly pass · twice a week', r: '500 zł' },
+          { l: 'Monthly pass · three times a week', r: '700 zł' },
+          { l: 'Unlimited', r: '1150 zł' },
+        ],
+        note: '',
+      },
+      {
+        title: 'Firing',
+        rows: [
+          { l: 'Bisque · 1 kg', r: '23 zł' },
+          { l: 'Glaze · 1 kg', r: '48 zł' },
+        ],
+        note: '',
+      },
+      {
+        title: 'Course',
+        rows: [
+          { l: '4 sessions · 3 pieces', r: '950 zł' },
+          { l: '8 sessions · 5 pieces', r: '1500 zł' },
+        ],
+        note: 'The course price includes everything you need: clay, engobes, glaze and two firings. You create your ceramic piece — we take care of the whole process and the final finish.',
+      },
+    ],
   },
 
   master: {

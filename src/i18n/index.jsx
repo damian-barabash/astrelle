@@ -2,8 +2,12 @@ import { createContext, useContext, useState, useCallback, useEffect } from 'rea
 import ru from './ru.js'
 import pl from './pl.js'
 import en from './en.js'
+import { fetchContent } from '../lib/supabase.js'
 
-const DICTS = { ru, pl, en }
+// Bundled dictionaries are the FALLBACK: the site renders instantly and still works
+// if Supabase is unreachable. On mount we fetch the editable content from the DB and
+// merge it on top, so admin edits become the live source of truth.
+const BUNDLED = { ru, pl, en }
 export const LANGS = [
   { code: 'ru', label: 'RU' },
   { code: 'pl', label: 'PL' },
@@ -16,14 +20,24 @@ function pick(obj, pathStr) {
   return pathStr.split('.').reduce((acc, k) => (acc == null ? acc : acc[k]), obj)
 }
 
-// First visit: match the device language. ru / pl / en are supported as-is;
-// anything else (e.g. French) falls back to Polish. The switcher still lets the
-// visitor change it, and that choice is remembered.
+function isPlainObject(v) {
+  return v && typeof v === 'object' && !Array.isArray(v)
+}
+// deep merge: base (bundled) <- override (db). Arrays from override replace wholesale.
+function deepMerge(base, over) {
+  if (!isPlainObject(base) || !isPlainObject(over)) return over === undefined ? base : over
+  const out = { ...base }
+  for (const k of Object.keys(over)) {
+    out[k] = isPlainObject(base[k]) && isPlainObject(over[k]) ? deepMerge(base[k], over[k]) : over[k]
+  }
+  return out
+}
+
 function detectLang() {
   try {
     const nav = navigator.language || (navigator.languages && navigator.languages[0]) || 'pl'
     const base = nav.toLowerCase().split('-')[0]
-    return DICTS[base] ? base : 'pl'
+    return BUNDLED[base] ? base : 'pl'
   } catch {
     return 'pl'
   }
@@ -32,21 +46,42 @@ function detectLang() {
 export function LangProvider({ children }) {
   const [lang, setLang] = useState(() => {
     const saved = typeof localStorage !== 'undefined' && localStorage.getItem('astrelle_lang')
-    return saved && DICTS[saved] ? saved : detectLang()
+    return saved && BUNDLED[saved] ? saved : detectLang()
   })
+  // live dictionaries — start with bundled, get replaced by DB content once loaded
+  const [dicts, setDicts] = useState(BUNDLED)
 
   useEffect(() => {
     localStorage.setItem('astrelle_lang', lang)
     document.documentElement.lang = lang
   }, [lang])
 
+  useEffect(() => {
+    let alive = true
+    fetchContent()
+      .then((db) => {
+        if (!alive) return
+        setDicts({
+          ru: deepMerge(BUNDLED.ru, db.ru),
+          pl: deepMerge(BUNDLED.pl, db.pl),
+          en: deepMerge(BUNDLED.en, db.en),
+        })
+      })
+      .catch(() => {
+        /* keep bundled fallback — the site stays fully functional */
+      })
+    return () => {
+      alive = false
+    }
+  }, [])
+
   const t = useCallback(
     (key) => {
-      const v = pick(DICTS[lang], key)
-      if (v == null) return pick(DICTS.ru, key) ?? key
+      const v = pick(dicts[lang], key)
+      if (v == null) return pick(dicts.ru, key) ?? key
       return v
     },
-    [lang]
+    [lang, dicts]
   )
 
   return <LangCtx.Provider value={{ lang, setLang, t }}>{children}</LangCtx.Provider>

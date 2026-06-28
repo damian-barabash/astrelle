@@ -128,31 +128,35 @@ export default {
   pricing: {
     kicker: 'Cennik',
     title: 'Przejrzysty cennik',
-    coworking: {
-      title: 'Coworking',
-      rows: [
-        { l: 'Jedna godzina', r: '35 zł' },
-        { l: 'Abonament miesięczny · 1 raz w tygodniu', r: '280 zł' },
-        { l: 'Abonament miesięczny · 2 razy w tygodniu', r: '500 zł' },
-        { l: 'Abonament miesięczny · 3 razy w tygodniu', r: '700 zł' },
-        { l: 'Nielimitowana', r: '1150 zł' },
-      ],
-    },
-    firing: {
-      title: 'Wypalanie',
-      rows: [
-        { l: 'Biskwit · 1 kg', r: '23 zł' },
-        { l: 'Szkliwo · 1 kg', r: '48 zł' },
-      ],
-    },
-    course: {
-      title: 'Kurs',
-      rows: [
-        { l: '4 zajęcia · 3 produkty', r: '950 zł' },
-        { l: '8 zajęć · 5 produktów', r: '1500 zł' },
-      ],
-      note: 'W cenie kursu zawarte jest wszystko, czego potrzebujesz: glina, angoby, szkliwo oraz dwa wypały. Ty tworzysz swoje ceramiczne dzieło, a my dbamy o cały proces i finalne wykończenie.',
-    },
+    groups: [
+      {
+        title: 'Coworking',
+        rows: [
+          { l: 'Jedna godzina', r: '35 zł' },
+          { l: 'Abonament miesięczny · 1 raz w tygodniu', r: '280 zł' },
+          { l: 'Abonament miesięczny · 2 razy w tygodniu', r: '500 zł' },
+          { l: 'Abonament miesięczny · 3 razy w tygodniu', r: '700 zł' },
+          { l: 'Nielimitowana', r: '1150 zł' },
+        ],
+        note: '',
+      },
+      {
+        title: 'Wypalanie',
+        rows: [
+          { l: 'Biskwit · 1 kg', r: '23 zł' },
+          { l: 'Szkliwo · 1 kg', r: '48 zł' },
+        ],
+        note: '',
+      },
+      {
+        title: 'Kurs',
+        rows: [
+          { l: '4 zajęcia · 3 produkty', r: '950 zł' },
+          { l: '8 zajęć · 5 produktów', r: '1500 zł' },
+        ],
+        note: 'W cenie kursu zawarte jest wszystko, czego potrzebujesz: glina, angoby, szkliwo oraz dwa wypały. Ty tworzysz swoje ceramiczne dzieło, a my dbamy o cały proces i finalne wykończenie.',
+      },
+    ],
   },
 
   master: {
