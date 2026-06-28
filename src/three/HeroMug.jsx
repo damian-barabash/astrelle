@@ -27,13 +27,19 @@ export default function HeroMug() {
       gl={{ antialias: true, alpha: true }}
       style={{ background: 'transparent' }}
     >
-      <ambientLight intensity={0.7} />
-      <directionalLight position={[3, 5, 4]} intensity={1.1} />
-      <directionalLight position={[-4, 2, -2]} intensity={0.35} />
+      {/* Warm sky / soft clay-toned ground fill — gives the glaze a natural gradient */}
+      <hemisphereLight args={['#fff6ec', '#e7d6c2', 0.55]} />
+      <ambientLight intensity={0.22} />
+      {/* Warm key, upper-front-right — brings out the cream glaze */}
+      <directionalLight position={[3.5, 4.5, 3.5]} intensity={1.35} color="#fff1de" />
+      {/* Cool soft fill, front-left — lifts the harsh dark speckle pits */}
+      <directionalLight position={[-4, 1.5, 2]} intensity={0.5} color="#eef3f7" />
+      {/* Back rim — pops the glossy glaze edge off the cream background */}
+      <directionalLight position={[-1.5, 3, -4]} intensity={0.7} color="#fffaf3" />
       <Suspense fallback={null}>
         <Model />
-        <Environment preset="city" />
-        <ContactShadows position={[0, -2.5, 0]} opacity={0.26} scale={11} blur={3} far={5} color="#5f7e48" />
+        <Environment preset="apartment" environmentIntensity={0.55} />
+        <ContactShadows position={[0, -2.5, 0]} opacity={0.22} scale={11} blur={3.4} far={5} color="#5f7e48" />
       </Suspense>
     </Canvas>
   )
