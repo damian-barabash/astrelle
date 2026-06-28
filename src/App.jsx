@@ -583,6 +583,8 @@ function useStack() {
         p.style.height = ''
         const inner = p.querySelector('.panel__inner')
         if (inner) inner.style.transform = ''
+        const pin = p.querySelector('.panel__pin')
+        if (pin) pin.style.transform = ''
       })
       ro?.disconnect()
     }
@@ -596,12 +598,34 @@ function useStack() {
         p.style.height = ih + ride + 'px'
         p.dataset.read = String(read)
         p.dataset.ride = String(ride)
+        if (i === 0) {
+          // Hero intro: the next block rides up over the hero (1:1, via sticky) and
+          // the hero holds DEAD STILL until that block reaches the bottom of the mug;
+          // only then does the hero lift up and off (see update). `cupY` = the mug's
+          // bottom, where the cover pauses; `r` = the cover's full-cover scroll point
+          // (= panel runway, the next panel's -100vh margin lands its top there).
+          const stage = p.querySelector('.hero__stage')
+          const stageTop = stage ? stage.getBoundingClientRect().top - inner.getBoundingClientRect().top : 0
+          const cupY = stage ? stageTop + stage.offsetHeight * 0.8 : vh * 0.55
+          p.dataset.cupy = String(cupY)
+          p.dataset.r = String(ih + ride - vh) // = ih ≈ vh
+        }
       })
     }
     const update = () => {
       raf = 0
-      panels.forEach((p) => {
+      panels.forEach((p, i) => {
         const inner = p.querySelector('.panel__inner')
+        if (i === 0) {
+          // Hero: frozen through phase 1, then lifts 1:1 with the rising cover.
+          const cupY = +p.dataset.cupy || 0
+          const r = +p.dataset.r || 0
+          const a = r - cupY // phase-1 length: scroll until cover reaches the mug
+          const sy = -p.getBoundingClientRect().top
+          const lift = Math.min(Math.max(sy - a, 0), cupY)
+          inner.style.transform = 'translateY(' + -lift + 'px)'
+          return
+        }
         const read = +p.dataset.read || 0
         const ride = +p.dataset.ride || 0
         const top = p.getBoundingClientRect().top
