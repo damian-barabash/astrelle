@@ -4,12 +4,12 @@ import { useGLTF, Center, Environment, ContactShadows } from '@react-three/drei'
 
 function Model() {
   const group = useRef()
-  const { scene } = useGLTF('/assets/3d/bunny_mug.glb')
+  const { scene } = useGLTF('/assets/3d/rabbit_mug.glb')
   useFrame((_, dt) => {
     if (group.current) group.current.rotation.y += dt * 0.5
   })
   return (
-    <group ref={group} scale={1.85}>
+    <group ref={group} scale={2.1}>
       <Center>
         <primitive object={scene} />
       </Center>
@@ -17,7 +17,7 @@ function Model() {
   )
 }
 
-useGLTF.preload('/assets/3d/bunny_mug.glb')
+useGLTF.preload('/assets/3d/rabbit_mug.glb')
 
 export default function HeroMug() {
   return (
