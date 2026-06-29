@@ -169,7 +169,7 @@ export default {
   booking: {
     kicker: 'Rezerwacja',
     title: 'Wybierz termin i wpadnij',
-    body: 'Kalendarz rezerwacji online pojawi się tutaj wkrótce. A na razie wybierz format — i napisz do nas, dobierzemy dogodny termin.',
+    body: 'Wybierz datę i godzinę w kalendarzu poniżej i zostaw zgłoszenie — skontaktujemy się, aby potwierdzić.',
     soon: 'Kalendarz online wkrótce',
     kursBtn: 'Zapisz się na kurs',
     coworkBtn: 'Zapisz się na coworking',

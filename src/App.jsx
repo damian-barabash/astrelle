@@ -716,6 +716,37 @@ export default function App() {
     return () => { alive = false }
   }, [])
   useEffect(() => initAnalytics(), [])
+  // "Записаться" links: in the capture-stack the calendar's raw position lands mid-cover,
+  // so scroll to the SETTLED spot where the calendar is shown and nothing rides over it yet.
+  useEffect(() => {
+    const onClick = (e) => {
+      const a = e.target.closest && e.target.closest('a[href="#booking"]')
+      if (!a) return
+      e.preventDefault()
+      const cal = document.getElementById('booking')
+      if (!cal) return
+      if (document.documentElement.classList.contains('stacked')) {
+        const bookingPanel = cal.closest('.panel')
+        const panels = Array.from(document.querySelectorAll('.content > .panel'))
+        let top = 0
+        for (const p of panels) {
+          if (p === bookingPanel) break
+          top += p.querySelector('.panel__inner').scrollHeight
+        }
+        const inner = bookingPanel.querySelector('.panel__inner')
+        const calTop = cal.getBoundingClientRect().top - inner.getBoundingClientRect().top
+        // clamp to the booking panel's "read" phase so we stay pinned & clean
+        // (never overshoot into the zone where the next block rides over it)
+        const read = Math.max(0, inner.scrollHeight - window.innerHeight)
+        const offset = Math.min(Math.max(0, calTop - 96), read)
+        window.scrollTo({ top: Math.max(0, top + offset), behavior: 'smooth' })
+      } else {
+        cal.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }
+    document.addEventListener('click', onClick)
+    return () => document.removeEventListener('click', onClick)
+  }, [])
   useStack(gallery.length > 0)
   // soft cross-fade on language change (no remount → no jank)
   const [fading, setFading] = useState(false)

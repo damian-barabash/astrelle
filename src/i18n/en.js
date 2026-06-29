@@ -169,7 +169,7 @@ export default {
   booking: {
     kicker: 'Booking',
     title: 'Pick a date and come over',
-    body: 'The online booking calendar will appear here soon. For now, choose a format — and message us, we’ll find a time that works.',
+    body: 'Pick a date and time in the calendar below and leave a request — we will contact you to confirm.',
     soon: 'Online calendar coming soon',
     kursBtn: 'Book a class',
     coworkBtn: 'Book coworking',
