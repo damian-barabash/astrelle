@@ -29,21 +29,42 @@ function Stub({ label }) {
 function Shell() {
   const { admin, loading, logout } = useAdmin()
   const [tab, setTab] = useState('edit')
+  const [menuOpen, setMenuOpen] = useState(false)
 
   if (loading) return <div className="aloading">Загрузка…</div>
   if (!admin) return <Login />
 
+  const go = (k) => { setTab(k); setMenuOpen(false) }
+  const activeLabel = TABS.find((x) => x.key === tab)?.label
+
   return (
-    <div className="admin">
-      <aside className="admin__side">
+    <div className={`admin ${menuOpen ? 'admin--open' : ''}`}>
+      {/* mobile top bar with burger */}
+      <header className="admin__mbar">
         <div className="admin__brand">Astrelle</div>
+        <span className="admin__mtab">{activeLabel}</span>
+        <button
+          type="button"
+          className={`admin__burger ${menuOpen ? 'is-open' : ''}`}
+          aria-label="Меню"
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((o) => !o)}
+        >
+          <span /><span /><span />
+        </button>
+      </header>
+
+      {menuOpen && <div className="admin__scrim" onClick={() => setMenuOpen(false)} />}
+
+      <aside className="admin__side">
+        <div className="admin__brand admin__brand--side">Astrelle</div>
         <nav className="admin__nav">
           {TABS.map((t) => (
             <button
               key={t.key}
               type="button"
               className={`admin__navbtn ${tab === t.key ? 'is-active' : ''}`}
-              onClick={() => setTab(t.key)}
+              onClick={() => go(t.key)}
             >
               {t.label}
               {!t.ready ? <span className="admin__soon">скоро</span> : null}

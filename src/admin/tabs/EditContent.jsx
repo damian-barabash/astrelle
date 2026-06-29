@@ -1,7 +1,102 @@
-import { useEffect, useState, useCallback } from 'react'
-import { fetchContent, callFn } from '../../lib/supabase.js'
+import { useEffect, useState, useCallback, useRef } from 'react'
+import { fetchContent, fetchImages, callFn } from '../../lib/supabase.js'
 import { useAdmin } from '../auth.jsx'
 import { SECTIONS, TEXTAREA_KEYS, ITEM_TEMPLATES, labelFor } from '../schema.js'
+
+// Editable block photos (language-agnostic). key → [label, default src]
+const BLOCK_IMAGES = [
+  ['band', 'Баннер «Керамика руками»', '/assets/img/photo-1.webp'],
+  ['master', 'Фото мастера (Стася)', '/assets/img/photo-3.webp'],
+  ['kurs', 'Мастер-классы — баннер', '/assets/img/photo-4.webp'],
+  ['cowork', 'Коворкинг', '/assets/img/photo-6.webp'],
+  ['clay_terracotta', 'Глина: терракота', '/assets/img/clay-terracotta.webp'],
+  ['clay_stoneware', 'Глина: каменная масса', '/assets/img/clay-stoneware.webp'],
+  ['clay_porcelain', 'Глина: фарфор', '/assets/img/clay-porcelain.webp'],
+  ['clay_white', 'Глина: белая', '/assets/img/clay-white.webp'],
+]
+
+// Convert any picked image to WebP in the browser before upload (resize ≤1600px).
+function toWebp(file, maxDim = 1600, quality = 0.85) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file)
+    const im = new Image()
+    im.onload = () => {
+      URL.revokeObjectURL(url)
+      const scale = Math.min(1, maxDim / Math.max(im.naturalWidth, im.naturalHeight))
+      const w = Math.round(im.naturalWidth * scale)
+      const h = Math.round(im.naturalHeight * scale)
+      const c = document.createElement('canvas')
+      c.width = w
+      c.height = h
+      c.getContext('2d').drawImage(im, 0, 0, w, h)
+      c.toBlob((b) => (b ? resolve(b) : reject(new Error('toBlob failed'))), 'image/webp', quality)
+    }
+    im.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Не удалось прочитать изображение')) }
+    im.src = url
+  })
+}
+
+function BlockImages({ token }) {
+  const [images, setImages] = useState({})
+  const [busy, setBusy] = useState('')
+  const [err, setErr] = useState('')
+  const fileRefs = useRef({})
+
+  useEffect(() => { fetchImages().then(setImages).catch(() => {}) }, [])
+
+  const upload = async (key, file) => {
+    if (!file) return
+    setErr(''); setBusy(key)
+    try {
+      const blob = await toWebp(file)
+      const signed = await callFn('admin-gallery', { action: 'sign', token, ext: 'webp' })
+      if (!signed.ok) throw new Error(signed.data?.error || 'sign failed')
+      const put = await fetch(signed.data.uploadUrl, { method: 'PUT', headers: { 'Content-Type': 'image/webp' }, body: blob })
+      if (!put.ok) throw new Error('upload ' + put.status)
+      const r = await callFn('admin-content', { action: 'images.set', token, key, url: signed.data.publicUrl })
+      if (!r.ok) throw new Error(r.data?.error || 'save failed')
+      setImages((im) => ({ ...im, [key]: signed.data.publicUrl }))
+    } catch (e) {
+      setErr('Ошибка: ' + e.message)
+    }
+    setBusy('')
+  }
+  const reset = async (key) => {
+    await callFn('admin-content', { action: 'images.set', token, key, url: null })
+    setImages((im) => { const n = { ...im }; delete n[key]; return n })
+  }
+
+  return (
+    <div className="imgs">
+      <p className="imgs__hint">Фото в блоках сайта. Любой формат — при загрузке сам сожмётся в WebP. Появятся на сайте сразу после загрузки.</p>
+      {err ? <p className="aerr">{err}</p> : null}
+      <div className="imgs__grid">
+        {BLOCK_IMAGES.map(([key, label, def]) => {
+          const cur = images[key]
+          return (
+            <div className="imgs__cell" key={key}>
+              <div className="imgs__thumb"><img src={cur || def} alt="" loading="lazy" /></div>
+              <div className="imgs__meta">
+                <span className="imgs__label">{label}{cur ? <i className="imgs__custom"> · своё</i> : null}</span>
+                <div className="imgs__act">
+                  <input
+                    ref={(el) => (fileRefs.current[key] = el)}
+                    type="file" accept="image/*" style={{ display: 'none' }}
+                    onChange={(e) => e.target.files?.[0] && upload(key, e.target.files[0])}
+                  />
+                  <button type="button" className="abtn abtn--sm" disabled={busy === key} onClick={() => fileRefs.current[key]?.click()}>
+                    {busy === key ? 'Загрузка…' : 'Заменить'}
+                  </button>
+                  {cur ? <button type="button" className="abtn abtn--ghost abtn--sm" onClick={() => reset(key)}>Сброс</button> : null}
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
 
 const LANGS = [
   ['ru', 'RU'],
@@ -97,7 +192,7 @@ function Node({ value, path, leafKey, onChange }) {
 }
 
 /* ---- one collapsible section ---- */
-function Section({ title, value, path, onChange, open, onToggle }) {
+function Section({ title, value, path, onChange, open, onToggle, children }) {
   return (
     <div className={`asec ${open ? 'asec--open' : ''}`}>
       <button type="button" className="asec__head" onClick={onToggle}>
@@ -106,7 +201,7 @@ function Section({ title, value, path, onChange, open, onToggle }) {
       </button>
       {open && (
         <div className="asec__body">
-          <Node value={value} path={path} leafKey="" onChange={onChange} />
+          {children != null ? children : <Node value={value} path={path} leafKey="" onChange={onChange} />}
         </div>
       )}
     </div>
@@ -193,10 +288,17 @@ export default function EditContent() {
 
       <p className="edit__hint">
         Правишь язык <b>{lang.toUpperCase()}</b>. Меняй тексты, добавляй/удаляй карточки, строки и группы цен
-        кнопками. Изменения попадут на сайт после «Сохранить». Фото и галерея — в следующем обновлении.
+        кнопками. Изменения попадут на сайт после «Сохранить». Фото блоков — ниже (применяются сразу).
       </p>
 
       <div className="edit__sections">
+        <Section
+          title="Фото блоков"
+          open={openKey === '__images'}
+          onToggle={() => setOpenKey(openKey === '__images' ? '' : '__images')}
+        >
+          <BlockImages token={token} />
+        </Section>
         {known.map(([key, title]) => (
           <Section
             key={key}

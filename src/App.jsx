@@ -98,12 +98,13 @@ function Value() {
 
 /* ---------------- Image band ---------------- */
 function Band() {
-  const { t } = useT()
+  const { t, img } = useT()
+  const custom = img('band', '')
   return (
     <section className="band reveal" aria-hidden="false">
       <picture>
-        <source srcSet={IMG(1)} media="(min-width: 720px)" />
-        <img src={IMG_SM(1)} alt="" loading="lazy" />
+        <source srcSet={custom || IMG(1)} media="(min-width: 720px)" />
+        <img src={custom || IMG_SM(1)} alt="" loading="lazy" />
       </picture>
       <LooseLoop className="band__loop" />
       <div className="band__quote">{t('hero.tagline')}</div>
@@ -311,7 +312,7 @@ function GlazeBlock() {
 
 /* ---------------- Invitation (master classes = main accent) ---------------- */
 function Invitation() {
-  const { t } = useT()
+  const { t, img } = useT()
   return (
     <section className="section invite" id="invite">
       <div className="container">
@@ -326,7 +327,7 @@ function Invitation() {
         {/* FEATURED — master classes */}
         <article className="feature reveal">
           <div className="feature__media">
-            <img src={IMG(4)} alt="" loading="lazy" />
+            <img src={img('kurs', IMG(4))} alt="" loading="lazy" />
             <LooseLoop className="feature__loop" />
           </div>
           <div className="feature__body">
@@ -344,7 +345,7 @@ function Invitation() {
         {/* secondary — coworking + stylised map */}
         <div className="invite__row">
           <article className="invite__card reveal">
-            <img src={IMG(6)} alt="" loading="lazy" />
+            <img src={img('cowork', IMG(6))} alt="" loading="lazy" />
             <h3>{t('invite.coworkTitle')}</h3>
             <p>{t('invite.coworkBody')}</p>
             <a className="btn" href="#booking">
@@ -375,7 +376,7 @@ function Invitation() {
 const DOTS = ['#c0613f', '#7c6a54', '#e7ddd2', '#b7a98f']
 const CLAY_KEYS = ['terracotta', 'stoneware', 'porcelain', 'white']
 function ClayTypes() {
-  const { t } = useT()
+  const { t, img } = useT()
   const items = t('types.items')
   const facts = t('types.facts')
   return (
@@ -392,7 +393,7 @@ function ClayTypes() {
             <article className="type reveal" key={i} tabIndex={0} style={{ transitionDelay: `${i * 0.07}s` }}>
               <div
                 className="type__photo"
-                style={{ backgroundImage: `url(/assets/img/clay-${CLAY_KEYS[i]}.webp)` }}
+                style={{ backgroundImage: `url(${img('clay_' + CLAY_KEYS[i], `/assets/img/clay-${CLAY_KEYS[i]}.webp`)})` }}
               >
                 <span className="type__photo-name">{it.t}</span>
               </div>
@@ -472,13 +473,13 @@ function Pricing() {
 
 /* ---------------- Master ---------------- */
 function Master() {
-  const { t } = useT()
+  const { t, img } = useT()
   return (
     <section className="section section--wine" id="master">
       <Goat n={11} className="goat--deco goat--tr" style={{ '--gty': '28px', '--gr': '-5deg' }} />
       <div className="container master">
         <div className="master__photo reveal">
-          <img src={IMG(3)} alt={t('master.name')} loading="lazy" />
+          <img src={img('master', IMG(3))} alt={t('master.name')} loading="lazy" />
           <Burst className="master__burst" />
         </div>
         <div className="reveal">
@@ -547,20 +548,23 @@ function Panel({ children }) {
 // block's -100vh margin makes it overlap and ride up over this one.
 function useStack(dep) {
   useEffect(() => {
-    const desktop = window.matchMedia('(min-width: 941px)')
+    // Pointer-based device split: a real mouse/trackpad (laptops & desktops) gets the
+    // FULL capture-stack across every block; touch devices (phones & tablets) get the
+    // HERO-ONLY intro (mug freeze→lift) and then plain native scrolling — this keeps
+    // mobile light (no stack of overlapping WebGL canvases = no scroll lag).
+    const fine = window.matchMedia('(hover: hover) and (pointer: fine)')
+    const wide = window.matchMedia('(min-width: 941px)')
     const calm = window.matchMedia('(prefers-reduced-motion: reduce)')
     const content = document.querySelector('.content')
     if (!content) return
-    // `stacked` lives on <html> — React owns .content's className (it toggles
-    // the language cross-fade class) and would clobber a class set there.
     const docEl = document.documentElement
-    const isStacked = () => docEl.classList.contains('stacked')
     let panels = []
+    let mode = 'none' // 'full' | 'hero' | 'none'
     let raf = 0
     let ro = null
 
     const clearAll = () => {
-      docEl.classList.remove('stacked')
+      docEl.classList.remove('stacked', 'stacked-hero')
       docEl.style.removeProperty('--vh')
       panels.forEach((p) => {
         p.style.height = ''
@@ -571,11 +575,40 @@ function useStack(dep) {
       })
       ro?.disconnect()
     }
+
+    // hero geometry (shared by both modes): cupY = mug bottom, r = full-cover scroll point
+    const measureHero = (vh) => {
+      const hero = panels[0]
+      if (!hero) return
+      const inner = hero.querySelector('.panel__inner')
+      const ih = inner.scrollHeight
+      hero.style.height = ih + vh + 'px' // pin runway = one viewport
+      const stage = hero.querySelector('.hero__stage')
+      const stageTop = stage ? stage.getBoundingClientRect().top - inner.getBoundingClientRect().top : 0
+      hero.dataset.cupy = String(stage ? stageTop + stage.offsetHeight * 0.8 : vh * 0.55)
+      hero.dataset.r = String(ih) // = heroHeight - vh
+    }
+    const moveHero = () => {
+      const hero = panels[0]
+      if (!hero) return
+      const inner = hero.querySelector('.panel__inner')
+      const cupY = +hero.dataset.cupy || 0
+      const r = +hero.dataset.r || 0
+      const a = r - cupY // phase-1 length: scroll until cover reaches the mug
+      const sy = -hero.getBoundingClientRect().top
+      const lift = Math.min(Math.max(sy - a, 0), cupY)
+      inner.style.transform = 'translateY(' + -lift + 'px)'
+    }
+
     const layout = () => {
       const vh = window.innerHeight
       // drive the pin/margin heights from the REAL viewport so CSS (var(--vh)) and
       // the JS transforms agree — critical on mobile where 100vh ≠ innerHeight.
       docEl.style.setProperty('--vh', vh + 'px')
+      if (mode === 'hero') {
+        measureHero(vh)
+        return
+      }
       panels.forEach((p, i) => {
         const inner = p.querySelector('.panel__inner')
         const ih = inner.scrollHeight // >= vh via min-height:100vh
@@ -585,28 +618,25 @@ function useStack(dep) {
         p.dataset.read = String(read)
         p.dataset.ride = String(ride)
         if (i === 0) {
-          // Hero intro: the next block rides up over the hero (1:1, via sticky) and
-          // the hero holds DEAD STILL until that block reaches the bottom of the mug;
-          // only then does the hero lift up and off (see update). `cupY` = the mug's
-          // bottom, where the cover pauses; `r` = the cover's full-cover scroll point
-          // (= panel runway, the next panel's -100vh margin lands its top there).
           const stage = p.querySelector('.hero__stage')
           const stageTop = stage ? stage.getBoundingClientRect().top - inner.getBoundingClientRect().top : 0
-          const cupY = stage ? stageTop + stage.offsetHeight * 0.8 : vh * 0.55
-          p.dataset.cupy = String(cupY)
+          p.dataset.cupy = String(stage ? stageTop + stage.offsetHeight * 0.8 : vh * 0.55)
           p.dataset.r = String(ih + ride - vh) // = ih ≈ vh
         }
       })
     }
     const update = () => {
       raf = 0
+      if (mode === 'hero') {
+        moveHero()
+        return
+      }
       panels.forEach((p, i) => {
         const inner = p.querySelector('.panel__inner')
         if (i === 0) {
-          // Hero: frozen through phase 1, then lifts 1:1 with the rising cover.
           const cupY = +p.dataset.cupy || 0
           const r = +p.dataset.r || 0
-          const a = r - cupY // phase-1 length: scroll until cover reaches the mug
+          const a = r - cupY
           const sy = -p.getBoundingClientRect().top
           const lift = Math.min(Math.max(sy - a, 0), cupY)
           inner.style.transform = 'translateY(' + -lift + 'px)'
@@ -625,7 +655,7 @@ function useStack(dep) {
       if (!raf) raf = requestAnimationFrame(update)
     }
     const relayout = () => {
-      if (!isStacked()) return
+      if (mode === 'none') return
       layout()
       update()
     }
@@ -633,30 +663,42 @@ function useStack(dep) {
       cancelAnimationFrame(raf)
       raf = 0
       clearAll()
-      // Enabled on every screen size now (mobile + tablet too) — only reduced-motion opts out.
-      if (!calm.matches) {
+      panels = Array.from(content.querySelectorAll(':scope > .panel'))
+      if (calm.matches) {
+        mode = 'none'
+        panels = []
+        return
+      }
+      if (fine.matches && wide.matches) {
+        mode = 'full'
         docEl.classList.add('stacked')
-        panels = Array.from(content.querySelectorAll(':scope > .panel'))
         layout()
         update()
-        // content height shifts (fonts, images, language switch) → relayout
         ro = new ResizeObserver(relayout)
         panels.forEach((p) => ro.observe(p.querySelector('.panel__inner')))
       } else {
-        panels = []
+        mode = 'hero'
+        docEl.classList.add('stacked-hero')
+        layout()
+        update()
+        ro = new ResizeObserver(relayout)
+        const hi = panels[0]?.querySelector('.panel__inner')
+        if (hi) ro.observe(hi)
       }
     }
     setup()
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', relayout)
     window.addEventListener('load', relayout)
-    desktop.addEventListener('change', setup)
+    fine.addEventListener('change', setup)
+    wide.addEventListener('change', setup)
     calm.addEventListener('change', setup)
     return () => {
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', relayout)
       window.removeEventListener('load', relayout)
-      desktop.removeEventListener('change', setup)
+      fine.removeEventListener('change', setup)
+      wide.removeEventListener('change', setup)
       calm.removeEventListener('change', setup)
       cancelAnimationFrame(raf)
       clearAll()

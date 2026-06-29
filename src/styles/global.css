@@ -162,6 +162,31 @@ a {
   justify-content: flex-end;
 }
 
+/* Hero-only stack (touch devices: phones & tablets). The hero pins and the next
+   block rides up over it (mug freeze→lift), then EVERYTHING below scrolls natively
+   — no overlapping pinned WebGL canvases, so no mobile scroll lag. (useStack mode='hero') */
+.stacked-hero .panel:first-child,
+.stacked-hero .panel:nth-child(2) {
+  position: relative;
+  z-index: 0; /* same z-index → the later (cover) panel paints over the pinned hero */
+}
+.stacked-hero .panel:first-child .panel__pin {
+  position: sticky;
+  top: 0;
+  height: var(--vh, 100vh);
+  overflow: hidden;
+}
+.stacked-hero .panel:first-child .panel__inner {
+  min-height: var(--vh, 100vh);
+  will-change: transform;
+}
+.stacked-hero .panel:nth-child(2) {
+  margin-top: calc(-1 * var(--vh, 100vh)); /* overlap the hero so it rides up over it */
+}
+.stacked-hero .panel:nth-child(2) .panel__inner {
+  min-height: var(--vh, 100vh); /* fill the viewport while rising */
+}
+
 /* shared section head */
 .value__head,
 .invite__head,

@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useCallback, useEffect } from 'rea
 import ru from './ru.js'
 import pl from './pl.js'
 import en from './en.js'
-import { fetchContent } from '../lib/supabase.js'
+import { fetchContent, fetchImages } from '../lib/supabase.js'
 
 // Bundled dictionaries are the FALLBACK: the site renders instantly and still works
 // if Supabase is unreachable. On mount we fetch the editable content from the DB and
@@ -50,6 +50,8 @@ export function LangProvider({ children }) {
   })
   // live dictionaries — start with bundled, get replaced by DB content once loaded
   const [dicts, setDicts] = useState(BUNDLED)
+  // editable block images (key -> url); empty until loaded, then overrides defaults
+  const [images, setImages] = useState({})
 
   useEffect(() => {
     localStorage.setItem('astrelle_lang', lang)
@@ -70,10 +72,16 @@ export function LangProvider({ children }) {
       .catch(() => {
         /* keep bundled fallback — the site stays fully functional */
       })
+    fetchImages()
+      .then((im) => alive && setImages(im || {}))
+      .catch(() => {})
     return () => {
       alive = false
     }
   }, [])
+
+  // block image with fallback to the bundled default
+  const img = useCallback((key, fallback) => images[key] || fallback, [images])
 
   const t = useCallback(
     (key) => {
@@ -84,7 +92,7 @@ export function LangProvider({ children }) {
     [lang, dicts]
   )
 
-  return <LangCtx.Provider value={{ lang, setLang, t }}>{children}</LangCtx.Provider>
+  return <LangCtx.Provider value={{ lang, setLang, t, img }}>{children}</LangCtx.Provider>
 }
 
 export function useT() {

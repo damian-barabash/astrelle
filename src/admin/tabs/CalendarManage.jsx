@@ -61,67 +61,8 @@ function EventForm({ initial, onSave, onCancel, busy }) {
   )
 }
 
-function Integration({ token }) {
-  const [cfg, setCfg] = useState(null)
-  const [appleId, setAppleId] = useState('')
-  const [pw, setPw] = useState('')
-  const [calName, setCalName] = useState('Astrelle')
-  const [msg, setMsg] = useState('')
-  const [busy, setBusy] = useState('')
-
-  const load = useCallback(() => {
-    callFn('admin-calendar', { action: 'integration.get', token }).then((r) => {
-      if (r.ok) { setCfg(r.data); setAppleId(r.data.apple_id || ''); setCalName(r.data.calendar_name || 'Astrelle') }
-    })
-  }, [token])
-  useEffect(() => { load() }, [load])
-
-  const save = async () => {
-    setBusy('save'); setMsg('')
-    const body = { action: 'integration.save', token, apple_id: appleId, calendar_name: calName }
-    if (pw.trim()) body.app_password = pw.trim()
-    const r = await callFn('admin-calendar', body)
-    setBusy(''); setPw('')
-    setMsg(r.ok ? 'Сохранено' : 'Ошибка'); load()
-  }
-  const connect = async () => {
-    setBusy('connect'); setMsg('')
-    const r = await callFn('admin-calendar', { action: 'caldav.connect', token })
-    setBusy('')
-    setMsg(r.data?.ok ? 'Подключено к iCloud ✓' : 'Не удалось подключиться: ' + (r.data?.error || '')); load()
-  }
-  const sync = async () => {
-    setBusy('sync'); setMsg('')
-    const r = await callFn('admin-calendar', { action: 'caldav.sync', token })
-    setBusy('')
-    setMsg(r.data?.ok ? `Синхронизировано: ${r.data.synced}` : 'Ошибка синка'); load()
-  }
-
-  return (
-    <div className="cm__integ">
-      <h3>Apple Календарь (iCloud)</h3>
-      <p className="cm__sub">События студии попадают в отдельный календарь «{calName}» в твоём iCloud. Нужен Apple ID и пароль приложения (app-specific). Обновляется автоматически при изменениях.</p>
-      <div className="cm__row">
-        <label className="af"><span className="af__lbl">Apple ID (e-mail)</span><input value={appleId} onChange={(e) => setAppleId(e.target.value)} placeholder="you@icloud.com" autoComplete="off" /></label>
-        <label className="af"><span className="af__lbl">Пароль приложения {cfg?.has_password ? '(задан — оставь пустым)' : ''}</span><input type="password" value={pw} onChange={(e) => setPw(e.target.value)} placeholder={cfg?.has_password ? '••••••••' : 'xxxx-xxxx-xxxx-xxxx'} autoComplete="off" /></label>
-        <label className="af"><span className="af__lbl">Имя календаря</span><input value={calName} onChange={(e) => setCalName(e.target.value)} /></label>
-      </div>
-      <div className="cm__integact">
-        <button className="abtn abtn--ghost" onClick={save} disabled={!!busy}>Сохранить данные</button>
-        <button className="abtn" onClick={connect} disabled={!!busy || !appleId}>{busy === 'connect' ? 'Подключаю…' : 'Подключить / создать календарь'}</button>
-        <button className="abtn abtn--ghost" onClick={sync} disabled={!!busy || !cfg?.enabled}>{busy === 'sync' ? 'Синк…' : 'Синхронизировать всё'}</button>
-        {msg ? <span className="cm__msg">{msg}</span> : null}
-      </div>
-      {cfg && (
-        <div className="cm__status">
-          Статус: {cfg.enabled ? <b className="ok">подключено</b> : 'не подключено'}
-          {cfg.last_sync ? ` · последний синк ${new Date(cfg.last_sync).toLocaleString('ru')}` : ''}
-          {cfg.last_error ? <span className="aerr"> · ошибка: {cfg.last_error}</span> : ''}
-        </div>
-      )}
-    </div>
-  )
-}
+// Apple Calendar (iCloud CalDAV) is configured on the backend only — no UI here.
+// Events/bookings sync automatically; the connection is managed via Supabase.
 
 export default function CalendarManage() {
   const { token } = useAdmin()
@@ -174,8 +115,6 @@ export default function CalendarManage() {
           onCancel={() => setEditing(null)}
         />
       )}
-
-      <Integration token={token} />
 
       <div className="cm__events">
         {data.events.length === 0 && <p className="cm__empty">Пока нет занятий. Создай первое.</p>}

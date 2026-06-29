@@ -29,6 +29,14 @@ export async function fetchGallery() {
   return await r.json()
 }
 
+// Public read of editable block images → { band, master, kurs, cowork, ... }
+export async function fetchImages() {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/site_settings?id=eq.1&select=images`, { headers })
+  if (!r.ok) throw new Error('images fetch failed: ' + r.status)
+  const rows = await r.json()
+  return rows[0]?.images || {}
+}
+
 // Call an Edge Function. Returns { ok, status, data }.
 export async function callFn(name, body) {
   try {
