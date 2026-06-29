@@ -691,3 +691,27 @@
 .imgs__label { font-size: 0.86rem; font-weight: 600; }
 .imgs__custom { color: var(--a-sage); font-style: normal; font-weight: 500; }
 .imgs__act { display: flex; gap: 6px; }
+
+/* ---- calendar: two creation modes + slots ---- */
+.cm__addbtns { display: flex; gap: 8px; flex-wrap: wrap; }
+.cm__formtitle {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.25rem; font-weight: 600; color: var(--a-sage);
+  margin-bottom: 2px;
+}
+.cm__slots { display: flex; flex-direction: column; gap: 8px; padding-top: 6px; }
+.cm__slotrow { display: flex; align-items: center; gap: 10px; }
+.cm__slotrow input[type=time] { width: 130px; border: 1px solid var(--a-line); border-radius: 9px; padding: 9px 11px; font: inherit; background: #fff; }
+.cm__slotrow input[type=number] { width: 72px; border: 1px solid var(--a-line); border-radius: 9px; padding: 9px 11px; font: inherit; background: #fff; }
+.cm__slotlbl { color: var(--a-soft); font-size: 0.86rem; }
+.cm__slotdel { width: 30px; height: 30px; border: 1px solid var(--a-line); border-radius: 8px; background: #fff; color: var(--a-wine); cursor: pointer; }
+.cm__slotdel:disabled { opacity: 0.35; cursor: default; }
+
+.cm__tag {
+  display: inline-block; margin-left: 8px; font-size: 0.64rem; font-weight: 600;
+  letter-spacing: 0.04em; text-transform: uppercase; color: var(--a-soft);
+  background: #efe6dc; padding: 2px 7px; border-radius: 6px; vertical-align: middle;
+}
+.cm__tag--theme { color: var(--a-wine); background: rgba(122, 46, 58, 0.1); }
+.cm__ev--slot { border-left: 3px solid var(--a-sage-2); }
+.cm__ev--slot.cm__ev--cw { border-left-color: var(--a-wine); }
