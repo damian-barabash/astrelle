@@ -2240,3 +2240,6 @@ h2.title::after {
     margin-top: 14px;
   }
 }
+
+/* anchor lands on the calendar, below the fixed topbar */
+#booking { scroll-margin-top: 100px; }

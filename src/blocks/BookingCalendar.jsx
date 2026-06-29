@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { useT } from '../i18n/index.jsx'
 import { SUPABASE_URL, SUPABASE_KEY, callFn } from '../lib/supabase.js'
 import { Kicker } from '../components/Decor.jsx'
@@ -152,7 +153,7 @@ export default function BookingCalendar() {
   })
 
   return (
-    <section className="section booking" id="booking">
+    <section className="section booking">
       <div className="container">
         <div className="booking__head reveal">
           <Kicker vol="11">{t('booking.kicker')}</Kicker>
@@ -160,7 +161,7 @@ export default function BookingCalendar() {
           <p className="lead">{t('booking.body')}</p>
         </div>
 
-        <div className="cal reveal">
+        <div className="cal reveal" id="booking">
           <div className="cal__bar">
             <button className="cal__nav" onClick={() => move(-1)} aria-label="‹">‹</button>
             <div className="cal__month">{c.months[ym.m]} {ym.y}</div>
@@ -187,7 +188,11 @@ export default function BookingCalendar() {
           {events.length === 0 && <p className="cal__empty">{c.empty}</p>}
         </div>
       </div>
-      {picked && <BookingModal event={picked} c={c} lang={lang} onClose={() => { setPicked(null); load() }} />}
+      {/* portal to <body> so the modal centers on the viewport, not inside a transformed panel */}
+      {picked && createPortal(
+        <BookingModal event={picked} c={c} lang={lang} onClose={() => { setPicked(null); load() }} />,
+        document.body
+      )}
     </section>
   )
 }

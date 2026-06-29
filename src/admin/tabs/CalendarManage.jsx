@@ -135,12 +135,16 @@ export default function CalendarManage() {
     await callFn('admin-calendar', { action: 'slots.create', token, type: s.type, price: s.price, slots })
     setBusy(false); setSlotsOpen(false); load()
   }
-  const delEvent = async (id) => {
+  const delEvent = (id) => {
     if (!confirm('Удалить и все его записи?')) return
-    await callFn('admin-calendar', { action: 'event.delete', token, id }); load()
+    // optimistic — remove instantly, sync in the background
+    setData((d) => ({ events: d.events.filter((e) => e.id !== id), bookings: d.bookings.filter((b) => b.event_id !== id) }))
+    callFn('admin-calendar', { action: 'event.delete', token, id })
   }
-  const setStatus = async (id, status) => {
-    await callFn('admin-calendar', { action: 'booking.status', token, id, status }); load()
+  const setStatus = (id, status) => {
+    // optimistic — update instantly, sync in the background
+    setData((d) => ({ ...d, bookings: d.bookings.map((b) => (b.id === id ? { ...b, status } : b)) }))
+    callFn('admin-calendar', { action: 'booking.status', token, id, status })
   }
   const bookingsFor = (eid) => data.bookings.filter((b) => b.event_id === eid)
   const formOpen = editing || slotsOpen
