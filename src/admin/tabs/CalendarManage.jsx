@@ -106,7 +106,6 @@ export default function CalendarManage() {
   const [data, setData] = useState({ events: [], bookings: [] })
   const [editing, setEditing] = useState(null) // thematic event form
   const [slotsOpen, setSlotsOpen] = useState(false) // slot batch form
-  const [busy, setBusy] = useState(false)
 
   const load = useCallback(() => {
     callFn('admin-calendar', { action: 'overview', token }).then((r) => {
@@ -115,25 +114,41 @@ export default function CalendarManage() {
   }, [token])
   useEffect(() => { load() }, [load])
 
-  const save = async (e) => {
-    setBusy(true)
+  const save = (e) => {
     const event = {
       id: e.id, type: 'class', title: e.title, theme: e.theme, icon: e.icon,
       starts_at: toISO(e.date, e.start), ends_at: toISO(e.date, e.end),
       capacity: e.capacity, price: e.price, notes: e.notes, published: e.published, is_slot: false,
     }
-    await callFn('admin-calendar', { action: 'event.save', token, event })
-    setBusy(false); setEditing(null); load()
+    // optimistic — show the class instantly, sync in the background
+    const tmpId = event.id || 'tmp-' + Date.now()
+    setData((d) => {
+      const rest = d.events.filter((x) => x.id !== event.id)
+      const events = [...rest, { ...event, id: tmpId }].sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at))
+      return { ...d, events }
+    })
+    setEditing(null)
+    callFn('admin-calendar', { action: 'event.save', token, event }).finally(load)
   }
-  const saveSlots = async (s) => {
-    setBusy(true)
+  const saveSlots = (s) => {
     const slots = s.rows.filter((r) => r.time).map((r) => {
       const start = toISO(s.date, r.time)
       const end = new Date(new Date(start).getTime() + s.duration * 60000).toISOString()
       return { starts_at: start, ends_at: end, capacity: r.capacity }
     })
-    await callFn('admin-calendar', { action: 'slots.create', token, type: s.type, price: s.price, slots })
-    setBusy(false); setSlotsOpen(false); load()
+    // optimistic — show the new windows instantly, sync in the background
+    const stamp = Date.now()
+    const optimistic = slots.map((sl, i) => ({
+      id: 'tmp-' + stamp + '-' + i, type: s.type, title: '', theme: '', icon: null,
+      starts_at: sl.starts_at, ends_at: sl.ends_at, capacity: sl.capacity,
+      price: s.price, notes: '', published: true, is_slot: true,
+    }))
+    setData((d) => ({
+      ...d,
+      events: [...d.events, ...optimistic].sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at)),
+    }))
+    setSlotsOpen(false)
+    callFn('admin-calendar', { action: 'slots.create', token, type: s.type, price: s.price, slots }).finally(load)
   }
   const delEvent = (id) => {
     if (!confirm('Удалить и все его записи?')) return
@@ -167,8 +182,8 @@ export default function CalendarManage() {
         )}
       </div>
 
-      {editing && <EventForm initial={editing.id ? editing : emptyEvent()} busy={busy} onSave={save} onCancel={() => setEditing(null)} />}
-      {slotsOpen && <SlotForm busy={busy} onSave={saveSlots} onCancel={() => setSlotsOpen(false)} />}
+      {editing && <EventForm initial={editing.id ? editing : emptyEvent()} busy={false} onSave={save} onCancel={() => setEditing(null)} />}
+      {slotsOpen && <SlotForm busy={false} onSave={saveSlots} onCancel={() => setSlotsOpen(false)} />}
 
       <div className="cm__events">
         {data.events.length === 0 && <p className="cm__empty">Пока нет занятий. Создай тематический мастер-класс или открой обычные окна.</p>}
