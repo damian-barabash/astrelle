@@ -52,7 +52,7 @@ export default function ProcessTimeline() {
       <Goat n={15} className="goat--deco goat--tr" style={{ '--gty': '20px', '--gr': '7deg' }} />
       <div className="container">
         <div className="value__head reveal">
-          <Kicker vol="05" wine>
+          <Kicker vol="02" wine>
             {t('process.kicker')}
           </Kicker>
           <h2 className="title">{t('process.title')}</h2>

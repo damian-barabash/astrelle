@@ -16,16 +16,24 @@ function device() {
   return 'desktop'
 }
 
-export function initAnalytics() {
-  if (typeof window === 'undefined') return () => {}
-  const id = sid()
-  const base = () => ({
-    sid: id,
+function base() {
+  return {
+    sid: sid(),
     path: location.pathname || '/',
     referrer: document.referrer || '',
     device: device(),
     lang: localStorage.getItem('astrelle_lang') || '',
-  })
+  }
+}
+
+// SPA route change → count a pageview for the new path
+export function trackPageview() {
+  if (typeof window === 'undefined') return
+  callFn('analytics-track', { ...base(), type: 'pageview' })
+}
+
+export function initAnalytics() {
+  if (typeof window === 'undefined') return () => {}
   callFn('analytics-track', { ...base(), type: 'pageview' })
   const hb = setInterval(() => callFn('analytics-track', { ...base(), type: 'heartbeat' }), 15000)
   const beacon = () => {

@@ -1,10 +1,10 @@
 import { useEffect, useState, useCallback } from 'react'
 import { callFn } from '../../lib/supabase.js'
 import { useAdmin } from '../auth.jsx'
+import { EventIcon, ICON_KEYS } from '../../components/icons.jsx'
 
-const ICONS = ['🏺', '🍷', '🎬', '🎨', '🔥', '✨', '🌿', '☕', '💻']
 const emptyEvent = () => ({
-  type: 'class', title: '', theme: '', icon: '🍷',
+  type: 'class', title: '', theme: '', icon: 'wine',
   date: '', start: '18:00', end: '20:00', capacity: 6, price: '', notes: '', published: true,
 })
 const emptySlots = () => ({ type: 'class', date: '', duration: 120, price: '', rows: [{ time: '12:00', capacity: 2 }] })
@@ -26,12 +26,13 @@ function EventForm({ initial, onSave, onCancel, busy }) {
   return (
     <form className="cm__form" onSubmit={(ev) => { ev.preventDefault(); onSave(e) }}>
       <div className="cm__formtitle">Тематический мастер-класс</div>
-      <label className="af"><span className="af__lbl">Иконка</span>
+      <label className="af"><span className="af__lbl">Иконка (как в календаре на сайте)</span>
         <div className="cm__icons">
-          {ICONS.map((ic) => (
-            <button type="button" key={ic} className={`cm__ic ${e.icon === ic ? 'is-active' : ''}`} onClick={() => set('icon', ic)}>{ic}</button>
+          {ICON_KEYS.map((key) => (
+            <button type="button" key={key} className={`cm__ic ${e.icon === key ? 'is-active' : ''}`} onClick={() => set('icon', key)}>
+              <EventIcon icon={key} />
+            </button>
           ))}
-          <input className="cm__icin" value={e.icon} onChange={(ev) => set('icon', ev.target.value)} maxLength={4} />
         </div>
       </label>
       <div className="cm__row">
@@ -191,11 +192,10 @@ export default function CalendarManage() {
           const bks = bookingsFor(e.id)
           const confirmed = bks.filter((b) => b.status === 'confirmed').reduce((s, b) => s + b.people, 0)
           const typeLabel = e.type === 'coworking' ? 'Коворкинг' : 'Мастер-класс'
-          const icon = e.icon || (e.type === 'coworking' ? '💻' : '🏺')
           return (
             <div className={`cm__ev ${e.is_slot ? 'cm__ev--slot' : ''} ${e.type === 'coworking' ? 'cm__ev--cw' : ''}`} key={e.id}>
               <div className="cm__ev-top">
-                <span className="cm__ev-ic">{icon}</span>
+                <span className="cm__ev-ic"><EventIcon icon={e.icon} type={e.type} /></span>
                 <div className="cm__ev-main">
                   <div className="cm__ev-title">
                     {e.is_slot ? typeLabel : (e.title || typeLabel)}
@@ -238,5 +238,5 @@ export default function CalendarManage() {
 function fromISOpair(e) {
   const s = fromISO(e.starts_at)
   const en = e.ends_at ? fromISO(e.ends_at) : { time: '' }
-  return { date: s.date, start: s.time, end: en.time, capacity: e.capacity, price: e.price || '', theme: e.theme || '', notes: e.notes || '', icon: e.icon || '🍷', title: e.title || '', type: e.type, published: e.published }
+  return { date: s.date, start: s.time, end: en.time, capacity: e.capacity, price: e.price || '', theme: e.theme || '', notes: e.notes || '', icon: e.icon || 'wine', title: e.title || '', type: e.type, published: e.published }
 }

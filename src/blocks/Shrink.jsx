@@ -14,7 +14,7 @@ export default function Shrink() {
       <Goat n={7} className="goat--deco goat--br" style={{ '--gty': '-10px', '--gr': '-6deg' }} />
       <div className="container shrinkb__grid">
         <div className="reveal">
-          <Kicker vol="07" wine>
+          <Kicker vol="03" wine>
             {t('shrink.kicker')}
           </Kicker>
           <h2 className="title">{t('shrink.title')}</h2>
