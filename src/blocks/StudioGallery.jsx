@@ -1,12 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
-import { useT } from '../i18n/index.jsx'
-
-// Heading copy lives here (not in the editable content doc) — admin mainly manages media.
-const COPY = {
-  ru: { kicker: 'Студия', title: 'Наше пространство', body: 'Загляни в мастерскую Astrelle — фото и видео процесса.' },
-  pl: { kicker: 'Pracownia', title: 'Nasza przestrzeń', body: 'Zajrzyj do pracowni Astrelle — zdjęcia i wideo z procesu.' },
-  en: { kicker: 'The studio', title: 'Our space', body: 'Take a look inside the Astrelle studio — photos and videos of the process.' },
-}
+import { T, Section, useEdit } from '../content/edit.jsx'
 
 function Lightbox({ items, index, onClose, onNav }) {
   useEffect(() => {
@@ -22,72 +15,55 @@ function Lightbox({ items, index, onClose, onNav }) {
       document.body.style.overflow = ''
     }
   }, [onClose, onNav])
-
   const item = items[index]
   if (!item) return null
   return (
-    <div className="sglb" onClick={onClose}>
-      <button className="sglb__x" onClick={onClose} aria-label="Закрыть">✕</button>
+    <div className="lb" onClick={onClose}>
+      <button className="lb__x" onClick={onClose} aria-label="×">✕</button>
       {items.length > 1 && (
         <>
-          <button className="sglb__nav sglb__nav--l" onClick={(e) => { e.stopPropagation(); onNav(-1) }} aria-label="Назад">‹</button>
-          <button className="sglb__nav sglb__nav--r" onClick={(e) => { e.stopPropagation(); onNav(1) }} aria-label="Вперёд">›</button>
+          <button className="lb__nav lb__nav--l" onClick={(e) => { e.stopPropagation(); onNav(-1) }} aria-label="‹">‹</button>
+          <button className="lb__nav lb__nav--r" onClick={(e) => { e.stopPropagation(); onNav(1) }} aria-label="›">›</button>
         </>
       )}
-      <div className="sglb__stage" onClick={(e) => e.stopPropagation()}>
-        {item.kind === 'video' ? (
-          <video src={item.url} poster={item.poster_url || undefined} controls autoPlay playsInline />
-        ) : (
-          <img src={item.url} alt="" />
-        )}
+      <div className="lb__stage" onClick={(e) => e.stopPropagation()}>
+        {item.kind === 'video' ? <video src={item.url} poster={item.poster_url || undefined} controls autoPlay playsInline /> : <img src={item.url} alt="" />}
       </div>
     </div>
   )
 }
 
+// Studio photos/videos from the admin gallery. Empty → the section does not render on the site.
 export default function StudioGallery({ items = [] }) {
-  const { lang } = useT()
-  const c = COPY[lang] || COPY.ru
+  const ed = useEdit()
   const [open, setOpen] = useState(-1)
-
-  const nav = useCallback(
-    (d) => setOpen((i) => (i + d + items.length) % items.length),
-    [items.length]
-  )
-
-  // Nothing to show yet → don't render an empty section on the live site.
-  if (items.length === 0) return null
-
+  const nav = useCallback((d) => setOpen((i) => (i + d + items.length) % items.length), [items.length])
+  if (items.length === 0 && !ed) return null
   return (
-    <section className="section sg" id="studio">
+    <Section id="gallery" label="Галерея студии" className="gal">
       <div className="container">
-        <div className="value__head reveal">
-          <span className="kicker">{c.kicker}</span>
-          <h2 className="title">{c.title}</h2>
-          <p className="sg__lead">{c.body}</p>
-        </div>
-        <div className="sg__grid">
-          {items.map((it, i) => (
-            <button
-              key={it.id}
-              className={`sg__item ${it.kind === 'video' ? 'sg__item--video' : ''}`}
-              style={it.width && it.height ? { aspectRatio: `${it.width} / ${it.height}` } : undefined}
-              onClick={() => setOpen(i)}
-              aria-label="Открыть"
-            >
-              {it.kind === 'video' ? (
-                <>
-                  <video src={`${it.url}#t=0.1`} poster={it.poster_url || undefined} muted playsInline preload="metadata" />
-                  <span className="sg__play">▶</span>
-                </>
-              ) : (
-                <img src={it.url} alt="" loading="lazy" />
-              )}
-            </button>
-          ))}
-        </div>
+        <span className="label"><T k="gallery.label" /></span>
+        <T k="gallery.title" as="h2" className="h2" />
+        {items.length === 0 ? (
+          <p className="gal__empty">Галерея пуста — загрузи фото во вкладке «Галерея», и секция появится на сайте.</p>
+        ) : (
+          <div className="gal__grid">
+            {items.map((it, i) => (
+              <button key={it.id} className={`gal__item ${it.kind === 'video' ? 'gal__item--video' : ''}`} style={it.width && it.height ? { aspectRatio: `${it.width} / ${it.height}` } : undefined} onClick={() => setOpen(i)} aria-label="Open">
+                {it.kind === 'video' ? (
+                  <>
+                    <video src={`${it.url}#t=0.1`} poster={it.poster_url || undefined} muted playsInline preload="metadata" />
+                    <span className="gal__play">▶</span>
+                  </>
+                ) : (
+                  <img src={it.url} alt="" loading="lazy" />
+                )}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
       {open >= 0 && <Lightbox items={items} index={open} onClose={() => setOpen(-1)} onNav={nav} />}
-    </section>
+    </Section>
   )
 }

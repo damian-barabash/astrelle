@@ -6,3 +6,7 @@ dist
 
 # original photo sources (stock JPGs) — only optimized webp in public/ are deployed
 media-src
+
+# supabase cli temp
+supabase/.temp
+supabase/.branches

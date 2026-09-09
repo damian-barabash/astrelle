@@ -1,4 +1,4 @@
-// Astrelle Supabase client config + tiny REST/Edge helpers (no SDK — keeps the bundle small).
+// Astrelle Supabase config + tiny REST/Edge helpers (no SDK — keeps the bundle small).
 export const SUPABASE_URL = 'https://wynmqmwvjwdwjwlixwvc.supabase.co'
 // Publishable (anon) key — safe to ship. Writes are protected by RLS + edge token auth.
 export const SUPABASE_KEY = 'sb_publishable_Ra_BQdcTTY2hlfk8qnO73w_zupAJV2Y'
@@ -9,32 +9,41 @@ const headers = {
   'Content-Type': 'application/json',
 }
 
-// Public read of the editable site content → { ru, pl, en }
+async function get(path) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { headers })
+  if (!r.ok) throw new Error(`${path.split('?')[0]} fetch failed: ${r.status}`)
+  return r.json()
+}
+
+// Editable site copy → { ru, pl, en }
 export async function fetchContent() {
-  const r = await fetch(`${SUPABASE_URL}/rest/v1/content?select=lang,doc`, { headers })
-  if (!r.ok) throw new Error('content fetch failed: ' + r.status)
-  const rows = await r.json()
+  const rows = await get('content?select=lang,doc')
   const out = {}
   for (const row of rows) out[row.lang] = row.doc
   return out
 }
 
-// Public read of studio gallery media, ordered.
-export async function fetchGallery() {
-  const r = await fetch(
-    `${SUPABASE_URL}/rest/v1/gallery_media?select=id,kind,url,poster_url,width,height,sort&order=sort.asc,created_at.asc`,
-    { headers }
-  )
-  if (!r.ok) throw new Error('gallery fetch failed: ' + r.status)
-  return await r.json()
+// Studio gallery media, ordered.
+export function fetchGallery() {
+  return get('gallery_media?select=id,kind,url,poster_url,width,height,sort&order=sort.asc,created_at.asc')
 }
 
-// Public read of editable block images → { band, master, kurs, cowork, ... }
-export async function fetchImages() {
-  const r = await fetch(`${SUPABASE_URL}/rest/v1/site_settings?id=eq.1&select=images`, { headers })
-  if (!r.ok) throw new Error('images fetch failed: ' + r.status)
+// Public site settings: block images, section layout, shop status, studio info.
+export async function fetchSettings() {
+  const rows = await get('site_settings?id=eq.1&select=images,layout,shop,studio')
+  return rows[0] || {}
+}
+
+// Published events in a range (+ confirmed seats) — the public calendar.
+export async function listEvents(fromISO, toISO) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/list_events`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ p_from: fromISO, p_to: toISO }),
+  })
+  if (!r.ok) throw new Error('events fetch failed: ' + r.status)
   const rows = await r.json()
-  return rows[0]?.images || {}
+  return Array.isArray(rows) ? rows : []
 }
 
 // Call an Edge Function. Returns { ok, status, data }.

@@ -1,15 +1,18 @@
 import { Suspense, useRef } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useGLTF, Center, Environment, ContactShadows } from '@react-three/drei'
 
 function Model() {
   const group = useRef()
   const { scene } = useGLTF('/assets/3d/rabbit_mug.glb')
+  // the frame is 16:9 on desktop and 4:5 on phones — keep the whole mug (handle included) in view
+  const aspect = useThree((s) => s.viewport.aspect)
+  const scale = aspect < 0.9 ? 1.15 : aspect < 1.4 ? 1.4 : 1.6
   useFrame((_, dt) => {
     if (group.current) group.current.rotation.y += dt * 0.5
   })
   return (
-    <group ref={group} scale={2.1}>
+    <group ref={group} scale={scale}>
       <Center>
         <primitive object={scene} />
       </Center>
@@ -22,7 +25,7 @@ useGLTF.preload('/assets/3d/rabbit_mug.glb')
 export default function HeroMug() {
   return (
     <Canvas
-      camera={{ position: [0, 0.25, 3.05], fov: 32 }}
+      camera={{ position: [0, 0.2, 3.4], fov: 32 }}
       dpr={[1, 2]}
       gl={{ antialias: true, alpha: true }}
       style={{ background: 'transparent' }}

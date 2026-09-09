@@ -1,5 +1,10 @@
-// Anonymous, cookieless traffic tracker. Runs on the public site only.
+// Anonymous, cookieless traffic tracker. Runs on the public site only and ONLY after
+// the visitor allowed statistics in the consent dialog.
 import { SUPABASE_URL, SUPABASE_KEY, callFn } from './supabase.js'
+import { getConsent, onConsent } from './consent.js'
+
+let started = false
+let stop = null
 
 function sid() {
   let s = localStorage.getItem('astrelle_sid')
@@ -15,7 +20,6 @@ function device() {
   if (/mobi|android|iphone|ipod/i.test(ua)) return 'mobile'
   return 'desktop'
 }
-
 function base() {
   return {
     sid: sid(),
@@ -28,12 +32,13 @@ function base() {
 
 // SPA route change → count a pageview for the new path
 export function trackPageview() {
-  if (typeof window === 'undefined') return
+  if (!started) return
   callFn('analytics-track', { ...base(), type: 'pageview' })
 }
 
-export function initAnalytics() {
-  if (typeof window === 'undefined') return () => {}
+function start() {
+  if (started || typeof window === 'undefined') return
+  started = true
   callFn('analytics-track', { ...base(), type: 'pageview' })
   const hb = setInterval(() => callFn('analytics-track', { ...base(), type: 'heartbeat' }), 15000)
   const beacon = () => {
@@ -42,11 +47,26 @@ export function initAnalytics() {
         `${SUPABASE_URL}/functions/v1/analytics-track`,
         new Blob([JSON.stringify({ ...base(), type: 'heartbeat', apikey: SUPABASE_KEY })], { type: 'application/json' })
       )
-    } catch (_) { /* ignore */ }
+    } catch { /* ignore */ }
   }
   window.addEventListener('pagehide', beacon)
-  return () => {
+  stop = () => {
     clearInterval(hb)
     window.removeEventListener('pagehide', beacon)
+    started = false
+  }
+}
+
+// Called once from App: starts now if consent exists, otherwise waits for it.
+export function initAnalytics() {
+  if (typeof window === 'undefined') return () => {}
+  if (getConsent()?.analytics) start()
+  const off = onConsent((c) => {
+    if (c?.analytics) start()
+    else if (stop) stop()
+  })
+  return () => {
+    off()
+    if (stop) stop()
   }
 }

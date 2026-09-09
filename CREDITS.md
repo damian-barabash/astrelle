@@ -22,3 +22,8 @@ icons by `scripts/goats.mjs` (recoloured to the brand sage). Source sheet kept
 locally in `media-src/maskot/pack.jpg` (outside git).
 
 Original full-resolution sources are kept locally in `media-src/` (outside git).
+
+## Fonts
+
+- **Geologica** (headlines) and **Onest** (text) — Google Fonts, SIL Open Font License 1.1.
+  Loaded from `fonts.googleapis.com` (see `index.html`).

@@ -1,13 +1,24 @@
 import { useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom'
 import { fetchGallery } from '../lib/supabase.js'
-import { Page, Panel, scrollToBooking } from '../stack.jsx'
-import { Hero, Value, Master, HomeFacts, Footer } from '../sections.jsx'
+import { useT } from '../i18n/index.jsx'
+import { orderSections } from '../content/edit.jsx'
+import { Hero, Formats, Steps, Master, Pricing, Facts, Cta } from '../sections/home.jsx'
 import StudioGallery from '../blocks/StudioGallery.jsx'
-import BookingCalendar from '../blocks/BookingCalendar.jsx'
+
+// Section order can be changed in the visual editor (site_settings.layout.order).
+export const HOME_SECTIONS = [
+  { id: 'hero', C: Hero },
+  { id: 'formats', C: Formats },
+  { id: 'steps', C: Steps },
+  { id: 'master', C: Master },
+  { id: 'gallery', C: StudioGallery },
+  { id: 'pricing', C: Pricing },
+  { id: 'facts', C: Facts },
+  { id: 'cta', C: Cta },
+]
 
 export default function Home() {
-  const location = useLocation()
+  const { layout } = useT()
   const [gallery, setGallery] = useState([])
   useEffect(() => {
     let alive = true
@@ -16,24 +27,11 @@ export default function Home() {
       alive = false
     }
   }, [])
-
-  // arriving from another page via a "#booking" link → scroll once the stack laid
-  // out; re-aim when the gallery loads (it inserts a panel above the calendar)
-  useEffect(() => {
-    if (location.hash !== '#booking') return
-    const id = setTimeout(scrollToBooking, 80)
-    return () => clearTimeout(id)
-  }, [location.hash, gallery.length > 0])
-
   return (
-    <Page dep={gallery.length > 0}>
-      <Panel><Hero /></Panel>
-      <Panel><Value /></Panel>
-      <Panel><Master /></Panel>
-      {gallery.length > 0 && <Panel><StudioGallery items={gallery} /></Panel>}
-      <Panel><BookingCalendar /></Panel>
-      <Panel><HomeFacts /></Panel>
-      <Panel><Footer /></Panel>
-    </Page>
+    <>
+      {orderSections(HOME_SECTIONS, layout).map(({ id, C }) => (
+        <C key={id} items={id === 'gallery' ? gallery : undefined} />
+      ))}
+    </>
   )
 }

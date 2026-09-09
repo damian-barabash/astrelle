@@ -3,16 +3,12 @@ import { callFn } from '../../lib/supabase.js'
 import { useAdmin } from '../auth.jsx'
 
 const PERIODS = [[7, '7 дней'], [30, '30 дней'], [90, '90 дней']]
-
-function fmtTime(sec) {
-  if (!sec) return '0с'
-  const m = Math.floor(sec / 60)
-  const s = sec % 60
-  return m ? `${m}м ${s}с` : `${s}с`
-}
+// sessions that stayed open for days skew the average — cap at 1 h for display
+const fmtTime = (sec) => { if (!sec) return '0с'; sec = Math.min(3600, Math.round(sec)); const m = Math.floor(sec / 60); const s = sec % 60; return m ? `${m}м ${s}с` : `${s}с` }
+const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0)
 
 function Bars({ data }) {
-  if (!data || data.length === 0) return <p className="an__empty">Нет данных за период.</p>
+  if (!data || data.length === 0) return <p className="aempty">Нет данных за период.</p>
   const max = Math.max(...data.map((d) => d.views), 1)
   return (
     <div className="an__bars">
@@ -25,19 +21,14 @@ function Bars({ data }) {
     </div>
   )
 }
-
 function TopList({ title, items }) {
   const max = Math.max(...(items || []).map((i) => i.n), 1)
   return (
-    <div className="an__top">
+    <div className="acard">
       <h4>{title}</h4>
-      {(!items || items.length === 0) && <p className="an__empty">—</p>}
+      {(!items || items.length === 0) && <p className="aempty">—</p>}
       {(items || []).map((i, k) => (
-        <div className="an__toprow" key={k}>
-          <span className="an__topk">{i.k || '—'}</span>
-          <span className="an__topbar"><i style={{ width: `${Math.round((i.n / max) * 100)}%` }} /></span>
-          <span className="an__topn">{i.n}</span>
-        </div>
+        <div className="an__toprow" key={k}><span className="an__topk">{i.k || '—'}</span><span className="an__topbar"><i style={{ width: `${Math.round((i.n / max) * 100)}%` }} /></span><span className="an__topn">{i.n}</span></div>
       ))}
     </div>
   )
@@ -47,47 +38,44 @@ export default function AnalyticsView() {
   const { token } = useAdmin()
   const [days, setDays] = useState(30)
   const [s, setS] = useState(null)
+  const [f, setF] = useState(null)
   const [loading, setLoading] = useState(true)
-
   const load = useCallback(() => {
     setLoading(true)
-    callFn('admin-analytics', { token, days }).then((r) => {
-      setS(r.ok ? r.data.summary : null)
-      setLoading(false)
-    })
+    callFn('admin-analytics', { token, days }).then((r) => { setS(r.ok ? r.data.summary : null); setF(r.ok ? r.data.funnel : null); setLoading(false) })
   }, [token, days])
   useEffect(() => { load() }, [load])
 
   return (
-    <div className="apad an">
-      <div className="an__head">
-        <div>
-          <h2 className="an__title">Аналитика</h2>
-          <p className="an__sub">Трафик публичного сайта. Без cookies и личных данных.</p>
-        </div>
-        <div className="an__periods">
-          {PERIODS.map(([v, l]) => (
-            <button key={v} className={`an__per ${days === v ? 'is-active' : ''}`} onClick={() => setDays(v)}>{l}</button>
-          ))}
-        </div>
+    <div>
+      <div className="ahead">
+        <div><h2>Аналитика</h2><p>Анонимная статистика сайта (только с согласия посетителя) и воронка записи.</p></div>
+        <div className="aseg">{PERIODS.map(([v, l]) => <button key={v} className={days === v ? 'is-active' : ''} onClick={() => setDays(v)}>{l}</button>)}</div>
       </div>
-
-      {loading ? (
-        <p className="an__empty">Загрузка…</p>
-      ) : !s ? (
-        <p className="an__empty">Нет данных.</p>
-      ) : (
+      {loading ? <p className="aempty">Загрузка…</p> : !s ? <p className="aempty">Нет данных.</p> : (
         <>
           <div className="an__stats">
-            <div className="an__stat"><b>{s.visits}</b><span>Визиты</span></div>
-            <div className="an__stat"><b>{s.pageviews}</b><span>Просмотры</span></div>
-            <div className="an__stat"><b>{fmtTime(s.avg_time)}</b><span>Ср. время</span></div>
-            <div className="an__stat"><b>{s.bounce}%</b><span>Отказы</span></div>
+            <div className="dash__stat"><b>{s.visits}</b><span>Визиты</span></div>
+            <div className="dash__stat"><b>{s.pageviews}</b><span>Просмотры</span></div>
+            <div className="dash__stat"><b>{fmtTime(s.avg_time)}</b><span>Ср. время</span></div>
+            <div className="dash__stat"><b>{s.bounce}%</b><span>Отказы</span></div>
           </div>
-          <div className="an__card">
-            <h4>Просмотры по дням</h4>
-            <Bars data={s.daily} />
-          </div>
+          {f && (
+            <div className="acard" style={{ marginBottom: 14 }}>
+              <h4>Воронка за период</h4>
+              <div className="funnel">
+                <div className="funnel__step"><b>{f.visits}</b><span>визитов</span></div>
+                <div className="funnel__step"><b>{f.calendar_views}</b><span>открыли календарь</span><i>{pct(f.calendar_views, f.visits)}%</i></div>
+                <div className="funnel__step"><b>{f.bookings}</b><span>заявок</span><i>{pct(f.bookings, f.calendar_views)}% от календаря</i></div>
+                <div className="funnel__step"><b>{f.confirmed}</b><span>подтверждено</span><i>{pct(f.confirmed, f.bookings)}%</i></div>
+                <div className="funnel__step"><b>{f.leads}</b><span>сообщений</span></div>
+                <div className="funnel__step"><b>{f.new_clients}</b><span>новых клиентов</span><i>всего {f.clients}</i></div>
+                <div className="funnel__step"><b>{f.shop_list}</b><span>в листе магазина</span></div>
+              </div>
+              <p className="edt__hint" style={{ marginTop: 8 }}>Визиты считаются только у тех, кто согласился на статистику; заявки и клиенты — все.</p>
+            </div>
+          )}
+          <div className="acard"><h4>Просмотры по дням</h4><Bars data={s.daily} /></div>
           <div className="an__grid">
             <TopList title="Страницы" items={s.top_pages} />
             <TopList title="Источники" items={s.referrers} />

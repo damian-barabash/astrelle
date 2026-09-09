@@ -1,15 +1,16 @@
 import { useEffect, useRef } from 'react'
-import { Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import { useT } from './i18n/index.jsx'
 import { initAnalytics, trackPageview } from './lib/analytics.js'
-import { scrollToBooking } from './stack.jsx'
 import Topbar from './components/Topbar.jsx'
+import Footer from './components/Footer.jsx'
 import Mascot from './Mascot.jsx'
 
-// Public-site layout: topbar with the menu, the routed page, the fact mascot.
+const TITLES = { '/kalendarz': 'nav.calendar', '/sklep': 'nav.shop', '/polityka-prywatnosci': 'footer.privacy', '/cookies': 'footer.cookies', '/regulamin': 'footer.terms' }
+
+// Public-site layout: topbar, the routed page, footer, the goat (cookie consent + facts).
 export default function App() {
   const location = useLocation()
-  const navigate = useNavigate()
   const { t, lang } = useT()
 
   useEffect(() => initAnalytics(), [])
@@ -24,36 +25,31 @@ export default function App() {
     trackPageview()
   }, [location.pathname])
 
-  // new page starts at the top (the #booking hash is handled by Home itself)
   useEffect(() => {
-    if (location.hash) return
-    window.scrollTo(0, 0)
-  }, [location.pathname])
-
-  // per-page document title
-  useEffect(() => {
-    const sub = { '/proces': t('nav.proces'), '/cennik': t('nav.cennik') }[location.pathname]
-    document.title = sub ? `${sub} · Astrelle` : 'Astrelle — ceramika ręczna, kursy i coworking · Warszawa'
-  }, [location.pathname, lang, t])
-
-  // every "#booking" link: on the home page scroll to the settled calendar spot,
-  // from any other page navigate home first (Home scrolls after the stack lays out)
-  useEffect(() => {
-    const onClick = (e) => {
-      const a = e.target.closest && e.target.closest('a[href$="#booking"]')
-      if (!a) return
-      e.preventDefault()
-      if (window.location.pathname === '/') scrollToBooking()
-      else navigate('/#booking')
+    if (location.hash) {
+      const el = document.querySelector(location.hash)
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        return
+      }
     }
-    document.addEventListener('click', onClick)
-    return () => document.removeEventListener('click', onClick)
-  }, [navigate])
+    window.scrollTo(0, 0)
+  }, [location.pathname, location.hash])
+
+  useEffect(() => {
+    const sub = TITLES[location.pathname]
+    document.title = sub ? `${t(sub)} · Astrelle` : t('meta.title')
+    const m = document.querySelector('meta[name="description"]')
+    if (m) m.setAttribute('content', t('meta.desc'))
+  }, [location.pathname, lang, t])
 
   return (
     <>
       <Topbar />
-      <Outlet />
+      <main className="page" key={lang}>
+        <Outlet />
+      </main>
+      <Footer />
       <Mascot />
     </>
   )

@@ -84,13 +84,13 @@ export default function GalleryManage() {
   }
 
   return (
-    <div className="apad gal">
-      <div className="gal__head">
+    <div className="gal-a">
+      <div className="ahead">
         <div>
-          <h2 className="gal__title">Галерея студии</h2>
-          <p className="gal__sub">Фото и видео из мастерской. Появятся на сайте секцией перед «Керамика, сделанная руками». Кликабельны на весь экран.</p>
+          <h2>Галерея студии</h2>
+          <p>Фото и видео из мастерской — секция «Nasza przestrzeń» на главной. Пока пусто, секция на сайте не показывается.</p>
         </div>
-        <div>
+        <div className="ahead__act">
           <input
             ref={fileRef}
             type="file"
@@ -106,9 +106,9 @@ export default function GalleryManage() {
       </div>
       {err ? <p className="aerr">{err}</p> : null}
       {items.length === 0 ? (
-        <p className="gal__empty">Пока пусто. Загрузи первые фото или видео — и секция появится на сайте.</p>
+        <p className="aempty">Пока пусто. Загрузи первые фото или видео — и секция появится на сайте.</p>
       ) : (
-        <div className="gal__grid">
+        <div className="gal__grid-a">
           {items.map((it, i) => (
             <div className="gal__cell" key={it.id}>
               <div className="gal__media">

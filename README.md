@@ -1,17 +1,37 @@
 # Astrelle
 
-Strona pracowni ceramiki **Astrelle** (Warszawa, Mała 5a · studio AINO) — kursy, zajęcia
-mistrzowskie i coworking ceramiczny. React + Vite, 3 języki (RU / PL / EN, domyślnie RU).
+Strona pracowni ceramiki **Astrelle** (Warszawa, ul. Mała 5a · studio AINO) — warsztaty,
+kurs i coworking ceramiczny, z kalendarzem zapisów i panelem administracyjnym.
+React + Vite, 3 języki (PL / RU / EN — domyślnie język urządzenia).
 
-🌐 https://astrelle.pl
+🌐 https://astrelle.pl · panel: https://astrelle.pl/admin
+
+## Strony
+
+| Ścieżka | Co |
+| --- | --- |
+| `/` | hero z kubkiem 3D, formaty 01/02/03, jak to działa, mistrzyni + studio, galeria, cennik, ciekawostki, CTA |
+| `/kalendarz` | kalendarz zapisów (miesiąc + lista), modal zgłoszenia, lista rezerwowa, formularze „nie wiesz co wybrać” i voucher |
+| `/sklep` | „otwarcie w październiku” + lista oczekujących |
+| `/polityka-prywatnosci` `/cookies` `/regulamin` | dokumenty (edytowalne w panelu) |
+| `/admin` | panel: Segodnia · Kalendarz · CRM · Edytor wizualny · Galeria · Analityka · Logi · Ustawienia |
 
 ## Stack
 
-- **React 18 + Vite**
-- **React Three Fiber** (`@react-three/fiber`, `@react-three/drei`, `three`) — kubek 3D w hero
-  oraz interaktywna „glina" (lepienie myszką / palcem)
-- własny lekki **i18n** (`src/i18n`, RU / PL / EN), wybór języka zapisany w `localStorage`
-- deploy: **GitHub Actions → GitHub Pages** (custom domain via `public/CNAME`)
+- **React 18 + Vite**, `react-router-dom` (BrowserRouter, fallback `404.html` na GH Pages)
+- **React Three Fiber** — kubek 3D w hero (`public/assets/3d/rabbit_mug.glb`)
+- fonty **Geologica** (nagłówki) + **Onest** (tekst) z Google Fonts
+- własny **i18n** (`src/i18n`) — słowniki w bundlu jako fallback, treść edytowalna w bazie (`content`)
+- **Supabase** (`wynmqmwvjwdwjwlixwvc`): Postgres + RLS, Storage `studio-media`, Edge Functions
+  (`supabase/functions/*`, wspólne helpery w `_shared/common.ts`), migracje w `supabase/migrations/`
+- zgoda na cookies: tylko ustawienia lokalne + anonimowe statystyki po zgodzie (`src/lib/consent.js`)
+- deploy frontu: **GitHub Actions → GitHub Pages** (custom domain via `public/CNAME`)
+
+## Edytor wizualny
+
+Komponenty `T` / `Img` / `List` / `Section` z `src/content/edit.jsx` renderują zwykły HTML na stronie,
+a w panelu (`/admin/edytor`) stają się edytowalne (klik → tekst, listy z ↑↓✕, sekcje ukryj/przesuń).
+Zapis → `content.doc` (per język) i `site_settings.layout`.
 
 ## Dev
 
@@ -22,43 +42,18 @@ npm run build      # → dist/
 npm run preview    # podgląd produkcyjnego buildu
 ```
 
+## Backend (Supabase)
+
+```bash
+# deploy funkcji (wymaga SUPABASE_ACCESS_TOKEN w env)
+npx supabase functions deploy <nazwa> --project-ref wynmqmwvjwdwjwlixwvc --no-verify-jwt
+```
+
+Funkcje publiczne: `book`, `lead`, `analytics-track`, `calendar-feed`. Admin (token sesji w body):
+`admin-auth`, `admin-content`, `admin-calendar`, `admin-crm`, `admin-gallery`, `admin-analytics`,
+`admin-logs`. Cron: `purge-past` (archiwizuje minione zajęcia, czyści iCloud).
+
 ## Obrazy
 
-Oryginalne zdjęcia (JPG) leżą w `media-src/photos/` (poza gitem). Skrypt konwertuje je do
-zoptymalizowanego `.webp` w `public/assets/img/` oraz wycina kozy-maskotki z grafik cennika:
-
-```bash
-npm run img
-```
-
-Wynik: `photo-1..7.webp` (+ `-sm` warianty), `clay-*.webp` i `public/assets/maskot/goat_*.{png,webp}`.
-
-Favikony (gwiazdki z logo → `public/favicon.svg`) i obraz OG (`public/og.png`) generuje:
-
-```bash
-node scripts/brand.mjs
-```
-
-## Deploy (GitHub Pages)
-
-Po `git push` na `main` workflow `.github/workflows/deploy.yml` sam zbuduje i wdroży stronę.
-
-> ⚠️ Jednorazowo w repo: **Settings → Pages → Source = GitHub Actions**.
-> Domena `astrelle.pl` jest trzymana w `public/CNAME` (kopiowana do `dist/`).
-
-## Struktura
-
-```
-index.html                  # entry Vite
-public/assets/              # 3d/, img/ (webp), logo/, maskot/ (kozy + ms_1)
-public/CNAME               # custom domain
-src/
-  main.jsx, App.jsx        # sekcje strony głównej
-  i18n/                    # ru.js / pl.js / en.js + provider
-  three/                   # HeroMug.jsx, ClaySculpt.jsx
-  styles/global.css        # design system (krem + szałwia)
-scripts/img.mjs            # webp + wycinanie kóz
-```
-
-Następne kroki (poza tym etapem): podpięcie kalendarza rezerwacji (Calendly/Booksy),
-katalog produktów + własny panel admina (Supabase).
+Oryginały (JPG) leżą w `media-src/` (poza gitem). `npm run img` konwertuje do `.webp` w
+`public/assets/img/`, `npm run goats` wycina kozy-maskotki, `node scripts/brand.mjs` generuje favikony i OG.
