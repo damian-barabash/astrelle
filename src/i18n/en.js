@@ -28,6 +28,8 @@ export default {
     cta: 'See dates',
   },
 
+  band: { caption: 'A wheel, a kiln, a big table — and the quiet in which you can hear the clay.' },
+
   steps: {
     label: 'How it works',
     items: [

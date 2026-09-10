@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback } from 'react'
+import { useEffect, useMemo, useState, useCallback, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { NavLink } from 'react-router-dom'
 import { useT } from '../i18n/index.jsx'
@@ -120,6 +120,17 @@ export default function BookingCalendar() {
   const [loaded, setLoaded] = useState(false)
   const [picked, setPicked] = useState(null)
   const [selDay, setSelDay] = useState(null)
+  const listRef = useRef(null)
+
+  // tapping a day with sessions selects it and glides down to its list (phone & desktop)
+  const pickDay = useCallback((k) => {
+    setSelDay((cur) => (cur === k ? null : k))
+  }, [])
+  useEffect(() => {
+    if (!selDay || !listRef.current) return
+    const id = setTimeout(() => listRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60)
+    return () => clearTimeout(id)
+  }, [selDay])
 
   // one fetch for the whole booking horizon (today → +120 days)
   const load = useCallback(() => {
@@ -207,7 +218,7 @@ export default function BookingCalendar() {
           const past = d < new Date(now.getFullYear(), now.getMonth(), now.getDate())
           const cls = ['cal__cell', k === todayKey && 'is-today', evs.length && 'has-ev', k === selDay && 'is-sel', past && 'is-past'].filter(Boolean).join(' ')
           return (
-            <div key={i} className={cls} onClick={() => evs.length && setSelDay(selDay === k ? null : k)} role={evs.length ? 'button' : undefined} tabIndex={evs.length ? 0 : undefined} onKeyDown={(e) => e.key === 'Enter' && evs.length && setSelDay(selDay === k ? null : k)}>
+            <div key={i} className={cls} onClick={() => evs.length && pickDay(k)} role={evs.length ? 'button' : undefined} tabIndex={evs.length ? 0 : undefined} onKeyDown={(e) => e.key === 'Enter' && evs.length && pickDay(k)}>
               <span className="cal__d">{d.getDate()}</span>
               <div className="cal__evs">
                 {evs.slice(0, 3).map((e) => {
@@ -221,13 +232,21 @@ export default function BookingCalendar() {
                 })}
                 {evs.length > 3 && <span className="cal__more">+{evs.length - 3}</span>}
               </div>
-              {evs.length > 0 && <span className="cal__dots" aria-hidden="true">{evs.slice(0, 4).map((e) => <i key={e.id} className={`cal__dot cal__dot--${e.type}`} />)}</span>}
+              {/* phone: the admin-picked icons instead of text pills */}
+              {evs.length > 0 && (
+                <span className="cal__minis" aria-hidden="true">
+                  {evs.slice(0, 3).map((e) => (
+                    <i key={e.id} className={`cal__mini cal__mini--${e.type} ${seatsLeft(e) === 0 ? 'is-full' : ''}`}><EventIcon icon={e.icon} type={e.type} /></i>
+                  ))}
+                  {evs.length > 3 && <b className="cal__mini-more">+{evs.length - 3}</b>}
+                </span>
+              )}
             </div>
           )
         })}
       </div>
 
-      <div className="cal__list">
+      <div className="cal__list" ref={listRef}>
         <div className="cal__list-head">
           <span className="label">{selDay ? cap(new Date(selDay).toLocaleDateString(lang, { weekday: 'long', day: 'numeric', month: 'long' })) : tt('upcoming')}</span>
           {selDay && <button type="button" className="cal__clear" onClick={() => setSelDay(null)}>{tt('all')} ✕</button>}

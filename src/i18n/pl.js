@@ -28,6 +28,8 @@ export default {
     cta: 'Zobacz terminy',
   },
 
+  band: { caption: 'Koło, piec, duży stół — i cisza, w której słychać glinę.' },
+
   steps: {
     label: 'Jak to działa',
     items: [

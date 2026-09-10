@@ -7,7 +7,7 @@ function Model() {
   const { scene } = useGLTF('/assets/3d/rabbit_mug.glb')
   // the frame is 16:9 on desktop and 4:5 on phones — keep the whole mug (handle included) in view
   const aspect = useThree((s) => s.viewport.aspect)
-  const scale = aspect < 0.9 ? 1.15 : aspect < 1.4 ? 1.4 : 1.6
+  const scale = aspect < 0.9 ? 1.15 : aspect < 1.25 ? 1.45 : aspect < 1.8 ? 2.0 : 1.6
   useFrame((_, dt) => {
     if (group.current) group.current.rotation.y += dt * 0.5
   })

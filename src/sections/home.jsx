@@ -7,36 +7,48 @@ import HeroMug from '../three/HeroMug.jsx'
 
 const IMG = (n) => `/assets/img/photo-${n}.webp`
 const pad2 = (n) => String(n + 1).padStart(2, '0')
+const FMT_IMG = [4, 6, 5] // default photos per format row: painting · wheel & tools · vases
 
 /* ---------------- Hero: statement + two short columns + the 3D mug in a big frame ---------------- */
 export function Hero() {
   return (
     <Section id="hero" label="Hero" className="hero">
       <div className="container">
-        <h1 className="hero__title">
-          <T k="hero.l1" as="span" className="hero__line" />
-          <T k="hero.l2" as="span" className="hero__line" />
-          <T k="hero.l3" as="span" className="hero__line hero__line--accent" />
-        </h1>
-        <div className="hero__cols">
-          <T k="hero.col1" as="p" multiline />
-          <T k="hero.col2" as="p" multiline />
-        </div>
-        <div className="hero__actions">
-          <NavLink className="btn btn--primary btn--lg" to="/kalendarz">
-            <T k="hero.cta" />
-          </NavLink>
-          <a className="btn btn--lg" href="#pricing">
-            <T k="hero.cta2" />
-          </a>
-        </div>
-        <div className="hero__frame">
-          <div className="hero__stage">
-            <HeroMug />
+        {/* the 3D mug sits behind the headline — the type runs over it */}
+        <div className="hero__top">
+          <div className="hero__mug" aria-hidden="true">
+            <div className="hero__stage">
+              <HeroMug />
+            </div>
           </div>
-          <span className="hero__tag hero__tag--tl"><T k="hero.tag1" /></span>
-          <span className="hero__tag hero__tag--br"><T k="hero.tag2" /></span>
-          <Goat n={14} className="hero__goat" />
+          <h1 className="hero__title">
+            <T k="hero.l1" as="span" className="hero__line" />
+            <T k="hero.l2" as="span" className="hero__line" />
+            <T k="hero.l3" as="span" className="hero__line hero__line--accent" />
+          </h1>
+          <span className="hero__caption">
+            <T k="hero.tag1" /> · <T k="hero.tag2" />
+          </span>
+        </div>
+        <div className="hero__row">
+          <div className="hero__actions">
+            <NavLink className="btn btn--primary btn--lg" to="/kalendarz">
+              <T k="hero.cta" />
+            </NavLink>
+            <a className="btn btn--lg" href="#pricing">
+              <T k="hero.cta2" />
+            </a>
+          </div>
+          <div className="hero__cols">
+            <T k="hero.col1" as="p" multiline />
+            <T k="hero.col2" as="p" multiline />
+          </div>
+        </div>
+        {/* editorial photo strip — three studio photos, bottom-aligned */}
+        <div className="hero__photos">
+          <Img k="hero_1" fallback={IMG(1)} className="hero__ph hero__ph--a" alt="" />
+          <Img k="hero_2" fallback={IMG(4)} className="hero__ph hero__ph--b" alt="" />
+          <Img k="hero_3" fallback={IMG(2)} className="hero__ph hero__ph--c" alt="" />
         </div>
       </div>
     </Section>
@@ -69,19 +81,37 @@ export function Formats() {
                 </div>
                 <div className="fmt__body">
                   <div className="fmt__body-in">
-                    <T k={`${p}.d`} as="p" multiline />
-                    <div className="fmt__meta">
-                      <T k={`${p}.meta`} as="span" className="tag" />
-                      <NavLink className="btn btn--sm" to="/kalendarz">
-                        <T k="formats.cta" /> →
-                      </NavLink>
+                    <div>
+                      <T k={`${p}.d`} as="p" multiline />
+                      <div className="fmt__meta">
+                        <T k={`${p}.meta`} as="span" className="tag" />
+                        <NavLink className="btn btn--sm" to="/kalendarz">
+                          <T k="formats.cta" /> →
+                        </NavLink>
+                      </div>
                     </div>
+                    <Img k={`format_${i}`} fallback={IMG(FMT_IMG[i % FMT_IMG.length])} className="fmt__ph" alt="" />
                   </div>
                 </div>
               </div>
             )
           }}
         />
+      </div>
+    </Section>
+  )
+}
+
+/* ---------------- Photo band: one wide studio photo ---------------- */
+export function Band() {
+  return (
+    <Section id="band" label="Фото-лента" className="band">
+      <div className="container">
+        <Img k="band" fallback={IMG(6)} className="band__img" alt="" />
+        <div className="band__caption">
+          <span>✦</span>
+          <T k="band.caption" />
+        </div>
       </div>
     </Section>
   )

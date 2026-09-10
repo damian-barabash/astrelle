@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
+import { Link } from 'react-router-dom'
 import { fetchContent, callFn } from '../../lib/supabase.js'
 import { useAdmin } from '../auth.jsx'
 import { LangProvider, BUNDLED, deepMerge, pick } from '../../i18n/index.jsx'
@@ -21,8 +22,8 @@ const PAGES = [
   ['cookies', 'Cookies'],
   ['terms', 'Регуламин'],
 ]
-const SECTION_LABELS = { hero: 'Hero', formats: 'Форматы 01/02/03', steps: 'Как это работает', master: 'Мастер и студия', gallery: 'Галерея', pricing: 'Цены', facts: 'Факты', cta: 'Призыв' }
-const IMAGE_KEYS = [['master', 'Фото мастера']]
+const SECTION_LABELS = { hero: 'Hero', formats: 'Форматы 01/02/03', band: 'Фото-лента', steps: 'Как это работает', master: 'Мастер и студия', gallery: 'Галерея', pricing: 'Цены', facts: 'Факты', cta: 'Призыв' }
+const IMAGE_KEYS = [['master', 'Фото мастера'], ['band', 'Фото-лента'], ['hero_1', 'Hero · фото 1'], ['hero_2', 'Hero · фото 2'], ['hero_3', 'Hero · фото 3'], ['format_0', 'Формат 01 · фото'], ['format_1', 'Формат 02 · фото'], ['format_2', 'Формат 03 · фото']]
 
 function setIn(obj, path, value) {
   if (path.length === 0) return value
@@ -157,6 +158,7 @@ export default function Editor() {
       <div className="edt__main">
         <div className="edt__bar">
           <div className="edt__bar-l">
+            <Link className="abtn abtn--ghost abtn--sm" to="/admin" onClick={(e) => { if (hasDirty && !confirm('Есть несохранённые правки. Выйти без публикации?')) e.preventDefault() }}>← Панель</Link>
             <div className="aseg">{PAGES.map(([k, l]) => <button key={k} className={page === k ? 'is-active' : ''} onClick={() => { setPage(k); setSelected('') }}>{l}</button>)}</div>
             <div className="aseg">{['pl', 'ru', 'en'].map((l) => <button key={l} className={lang === l ? 'is-active' : ''} onClick={() => setLang(l)}>{l.toUpperCase()}{dirty[l] && <i className="edt__dirty" />}</button>)}</div>
             <div className="aseg"><button className={device === 'desktop' ? 'is-active' : ''} onClick={() => setDevice('desktop')}>🖥</button><button className={device === 'mobile' ? 'is-active' : ''} onClick={() => setDevice('mobile')}>📱</button></div>
