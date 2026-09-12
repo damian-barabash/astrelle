@@ -22,8 +22,8 @@ const PAGES = [
   ['cookies', 'Cookies'],
   ['terms', 'Регуламин'],
 ]
-const SECTION_LABELS = { hero: 'Hero', formats: 'Форматы 01/02/03', band: 'Фото-лента', steps: 'Как это работает', master: 'Мастер и студия', gallery: 'Галерея', pricing: 'Цены', facts: 'Факты', cta: 'Призыв' }
-const IMAGE_KEYS = [['master', 'Фото мастера'], ['band', 'Фото-лента'], ['hero_1', 'Hero · фото 1'], ['hero_2', 'Hero · фото 2'], ['hero_3', 'Hero · фото 3'], ['format_0', 'Формат 01 · фото'], ['format_1', 'Формат 02 · фото'], ['format_2', 'Формат 03 · фото']]
+const SECTION_LABELS = { hero: 'Hero', voucher: 'Voucher', formats: 'Форматы 01/02/03', band: 'Фото-лента', steps: 'Как это работает', master: 'Мастер и студия', gallery: 'Галерея', pricing: 'Цены', facts: 'Факты', cta: 'Призыв' }
+const IMAGE_KEYS = [['master', 'Фото мастера'], ['voucher', 'Voucher · фото'], ['band', 'Фото-лента'], ['hero_1', 'Hero · фото 1'], ['hero_2', 'Hero · фото 2'], ['hero_3', 'Hero · фото 3'], ['format_0', 'Формат 01 · фото'], ['format_1', 'Формат 02 · фото'], ['format_2', 'Формат 03 · фото']]
 
 function setIn(obj, path, value) {
   if (path.length === 0) return value

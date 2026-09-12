@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useT } from '../i18n/index.jsx'
-import { T } from '../content/edit.jsx'
+import { T, Img } from '../content/edit.jsx'
 import { callFn } from '../lib/supabase.js'
 
 // Small lead form: "not sure what to pick?" (kind=contact), gift voucher (gift) or the
@@ -35,6 +35,7 @@ export default function LeadForm({ kind = 'contact', id, compact = false }) {
       <div className="lead__head">
         {kind === 'gift' ? (
           <>
+            <Img k="voucher" fallback="/assets/img/voucher.webp" className="lead__img" alt="" />
             <T k="lead.giftTitle" as="h2" className="h2" />
             <T k="lead.giftSub" as="p" multiline />
           </>

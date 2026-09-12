@@ -55,6 +55,28 @@ export function Hero() {
   )
 }
 
+/* ---------------- Voucher: the gift card, right under the hero ---------------- */
+export function Voucher() {
+  return (
+    <Section id="voucher" label="Voucher" className="vou">
+      <div className="container">
+        <span className="label"><T k="voucher.label" /></span>
+        <div className="vou__in">
+          <Img k="voucher" fallback="/assets/img/voucher.webp" className="vou__img" alt="" />
+          <div className="vou__body">
+            <T k="voucher.title" as="h2" className="h2" />
+            <T k="voucher.text" as="p" className="vou__text" multiline />
+            <NavLink className="btn btn--sm" to="/kalendarz#voucher">
+              <T k="voucher.btn" /> →
+            </NavLink>
+            <Goat n={17} className="vou__goat" />
+          </div>
+        </div>
+      </div>
+    </Section>
+  )
+}
+
 /* ---------------- Formats: 01 / 02 / 03 rows that open on click ---------------- */
 export function Formats() {
   const [open, setOpen] = useState(0)
@@ -209,16 +231,6 @@ export function Pricing() {
             </div>
           )}
         />
-        <div className="price__gift">
-          <Goat n={17} className="price__goat" />
-          <div>
-            <T k="pricing.gift" as="h3" />
-            <T k="pricing.giftText" as="p" multiline />
-          </div>
-          <NavLink className="btn btn--sm" to="/kalendarz#voucher">
-            <T k="pricing.giftBtn" /> →
-          </NavLink>
-        </div>
       </div>
     </Section>
   )

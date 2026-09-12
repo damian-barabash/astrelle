@@ -18,6 +18,13 @@ export default {
     cta2: 'Prices',
   },
 
+  voucher: {
+    label: 'Gift',
+    title: 'Gift voucher',
+    text: 'A workshop as a present — the recipient picks the date. We send it as a PDF or hand it over at the studio.',
+    btn: 'Ask about a voucher',
+  },
+
   formats: {
     label: 'What we do',
     items: [
@@ -61,9 +68,6 @@ export default {
       { title: 'Coworking', rows: [{ l: 'One hour', r: '35 zł' }, { l: 'Month · once a week', r: '280 zł' }, { l: 'Month · twice a week', r: '500 zł' }, { l: 'Month · three times a week', r: '700 zł' }, { l: 'Unlimited', r: '1150 zł' }], note: '' },
       { title: 'Course & firing', rows: [{ l: 'Course · 4 sessions · 3 pieces', r: '950 zł' }, { l: 'Course · 8 sessions · 5 pieces', r: '1500 zł' }, { l: 'Bisque firing · 1 kg', r: '23 zł' }, { l: 'Glaze firing · 1 kg', r: '48 zł' }], note: 'The course price includes clay, engobes, glaze and two firings.' },
     ],
-    gift: 'Gift voucher',
-    giftText: 'A workshop as a present — the recipient picks the date.',
-    giftBtn: 'Ask about a voucher',
   },
 
   facts: {

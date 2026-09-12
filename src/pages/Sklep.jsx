@@ -18,7 +18,7 @@ export default function Sklep() {
         <div className="shop__art">
           <Goat n={2} className="shop__goat shop__goat--a" />
           <Goat n={6} className="shop__goat shop__goat--b" />
-          <Goat n={15} className="shop__goat shop__goat--c" />
+          <Goat n={8} className="shop__goat shop__goat--c" />
         </div>
       </div>
     </section>

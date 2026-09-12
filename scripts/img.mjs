@@ -16,6 +16,8 @@ const CLAY_DIR = path.join(ROOT, 'media-src/clay') // sourced clay photo(s)
 const IMG_DIR = path.join(ROOT, 'public/assets/img') // optimized webp output
 const MASKOT_DIR = path.join(ROOT, 'public/assets/maskot')
 const PRICE_DIR = '/Users/dmytrii/Desktop/PROJEKTY/ASTRELLE/Grafiki/Price'
+// gift-voucher artwork (front side, PL) — shown in the voucher block
+const VOUCHER_SRC = '/Users/dmytrii/Desktop/PROJEKTY/ASTRELLE/VOUCHER/Szablon.jpg'
 
 // ---- 1. photos → webp -------------------------------------------------------
 async function photos() {
@@ -100,8 +102,20 @@ async function clay() {
   }
 }
 
+// ---- 4. gift voucher (2:1 banner for the voucher block) ---------------------
+async function voucher() {
+  if (!existsSync(VOUCHER_SRC)) {
+    console.warn(`skip voucher: ${VOUCHER_SRC} not found`)
+    return
+  }
+  await mkdir(IMG_DIR, { recursive: true })
+  await sharp(VOUCHER_SRC).resize({ width: 1400 }).webp({ quality: 82 }).toFile(path.join(IMG_DIR, 'voucher.webp'))
+  console.log('voucher → voucher.webp')
+}
+
 await photos()
 await clay()
+await voucher()
 await cutGoat('Price_2.jpg', 'goat_potter') // koza przy kole garncarskim
 await cutGoat('Price_1.jpg', 'goat_coin')   // koza z monetami
 console.log('done.')

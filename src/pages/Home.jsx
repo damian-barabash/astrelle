@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react'
 import { fetchGallery } from '../lib/supabase.js'
 import { useT } from '../i18n/index.jsx'
 import { orderSections } from '../content/edit.jsx'
-import { Hero, Formats, Band, Steps, Master, Pricing, Facts, Cta } from '../sections/home.jsx'
+import { Hero, Voucher, Formats, Band, Steps, Master, Pricing, Facts, Cta } from '../sections/home.jsx'
 import StudioGallery from '../blocks/StudioGallery.jsx'
 
 // Section order can be changed in the visual editor (site_settings.layout.order).
 export const HOME_SECTIONS = [
   { id: 'hero', C: Hero },
+  { id: 'voucher', C: Voucher },
   { id: 'formats', C: Formats },
   { id: 'band', C: Band },
   { id: 'steps', C: Steps },

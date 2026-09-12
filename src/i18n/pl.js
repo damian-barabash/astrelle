@@ -18,6 +18,13 @@ export default {
     cta2: 'Cennik',
   },
 
+  voucher: {
+    label: 'Prezent',
+    title: 'Voucher podarunkowy',
+    text: 'Warsztat w prezencie — datę wybiera obdarowany. Voucher wysyłamy w PDF albo wydajemy w pracowni.',
+    btn: 'Zapytaj o voucher',
+  },
+
   formats: {
     label: 'Co robimy',
     items: [
@@ -61,9 +68,6 @@ export default {
       { title: 'Coworking', rows: [{ l: 'Godzina', r: '35 zł' }, { l: 'Miesiąc · 1× w tygodniu', r: '280 zł' }, { l: 'Miesiąc · 2× w tygodniu', r: '500 zł' }, { l: 'Miesiąc · 3× w tygodniu', r: '700 zł' }, { l: 'Bez limitu', r: '1150 zł' }], note: '' },
       { title: 'Kurs i wypał', rows: [{ l: 'Kurs · 4 spotkania · 3 naczynia', r: '950 zł' }, { l: 'Kurs · 8 spotkań · 5 naczyń', r: '1500 zł' }, { l: 'Wypał biskwitowy · 1 kg', r: '23 zł' }, { l: 'Wypał szkliwny · 1 kg', r: '48 zł' }], note: 'W cenie kursu: glina, angoby, szkliwo i dwa wypały.' },
     ],
-    gift: 'Voucher podarunkowy',
-    giftText: 'Warsztat w prezencie — z datą do wyboru przez obdarowanego.',
-    giftBtn: 'Zapytaj o voucher',
   },
 
   facts: {

@@ -504,7 +504,9 @@ p {
 }
 .ed-img.hero__ph img,
 .ed-img.fmt__ph img,
-.ed-img.band__img img {
+.ed-img.band__img img,
+.ed-img.vou__img img,
+.ed-img.lead__img img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -512,7 +514,9 @@ p {
 }
 .ed-img.hero__ph,
 .ed-img.fmt__ph,
-.ed-img.band__img {
+.ed-img.band__img,
+.ed-img.vou__img,
+.ed-img.lead__img {
   overflow: hidden;
 }
 @keyframes rise {
@@ -524,6 +528,35 @@ p {
     opacity: 1;
     transform: none;
   }
+}
+
+/* ---- voucher (gift card, right under the hero) ---- */
+.vou__in {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: clamp(28px, calc(4 * var(--vw)), 64px);
+  align-items: center;
+}
+.vou__img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  object-fit: cover;
+  border-radius: var(--r);
+  border: 1px solid var(--line);
+}
+.vou__body {
+  position: relative;
+}
+.vou__text {
+  max-width: 40ch;
+  margin: 14px 0 26px;
+}
+.vou__goat {
+  position: absolute;
+  right: 0;
+  bottom: -18px;
+  width: 92px;
 }
 
 /* ---- formats (01/02/03 rows) ---- */
@@ -874,25 +907,6 @@ p {
 .price__note:empty {
   display: none;
 }
-.price__gift {
-  margin-top: clamp(32px, calc(4 * var(--vw)), 56px);
-  padding-top: 24px;
-  border-top: 1px solid var(--line-strong);
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 24px;
-  align-items: center;
-}
-.price__gift h3 {
-  margin-bottom: 4px;
-}
-.price__gift p {
-  font-size: 15px;
-}
-.price__goat {
-  width: 84px;
-}
-
 /* ---- facts ---- */
 .facts__grid {
   display: grid;
@@ -1118,6 +1132,15 @@ p {
 }
 .lead__head .h2 {
   margin-bottom: 8px;
+}
+/* the gift voucher card above the form's title */
+.lead__img {
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  object-fit: cover;
+  border-radius: var(--r);
+  border: 1px solid var(--line);
+  margin-bottom: 22px;
 }
 .lead__fields {
   display: grid;
@@ -1938,13 +1961,12 @@ p {
     grid-template-columns: 1fr;
     gap: 12px;
   }
+  /* same layout as on desktop: the mug sits behind the headline, off the right edge */
   .hero__mug {
-    position: relative;
-    right: auto;
+    right: -4%;
     top: auto;
-    width: 100%;
-    aspect-ratio: 16 / 10;
-    margin: 0;
+    bottom: 26px;
+    width: 56%;
   }
   .hero__caption {
     margin-top: 6px;
@@ -1974,6 +1996,13 @@ p {
   .band__img {
     aspect-ratio: 4 / 3;
   }
+  .vou__in {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+  .vou__goat {
+    display: none;
+  }
   .hero__actions .btn {
     flex: 1;
   }
@@ -2002,9 +2031,6 @@ p {
   }
   .team__goat {
     display: none;
-  }
-  .price__gift {
-    grid-template-columns: 1fr;
   }
   .ctab .container::before {
     inset: 0 12px;
@@ -2191,13 +2217,12 @@ p {
     grid-template-columns: 1fr;
     gap: 12px;
   }
+  /* same layout as on desktop: the mug sits behind the headline, off the right edge */
   .hero__mug {
-    position: relative;
-    right: auto;
+    right: -4%;
     top: auto;
-    width: 100%;
-    aspect-ratio: 16 / 10;
-    margin: 0;
+    bottom: 26px;
+    width: 56%;
   }
   .hero__caption {
     margin-top: 6px;
@@ -2227,6 +2252,13 @@ p {
   .band__img {
     aspect-ratio: 4 / 3;
   }
+  .vou__in {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+  .vou__goat {
+    display: none;
+  }
   .hero__actions .btn {
     flex: 1;
   }
@@ -2255,9 +2287,6 @@ p {
   }
   .team__goat {
     display: none;
-  }
-  .price__gift {
-    grid-template-columns: 1fr;
   }
   .ctab .container::before {
     inset: 0 12px;
