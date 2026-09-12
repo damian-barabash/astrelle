@@ -1,10 +1,12 @@
 import { Suspense, useRef } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { useGLTF, Center, Environment, ContactShadows } from '@react-three/drei'
+import { useGLTF, Center, Environment, Lightformer, ContactShadows } from '@react-three/drei'
 
 function Model() {
   const group = useRef()
-  const { scene } = useGLTF('/assets/3d/rabbit_mug.glb')
+  // meshopt-compressed glb; `false` turns Draco off so drei never points a
+  // DRACOLoader at gstatic.com — the meshopt decoder is bundled with three-stdlib
+  const { scene } = useGLTF('/assets/3d/rabbit_mug.glb', false)
   // the frame is 16:9 on desktop and 4:5 on phones — keep the whole mug (handle included) in view
   const aspect = useThree((s) => s.viewport.aspect)
   const scale = aspect < 0.9 ? 1.15 : aspect < 1.25 ? 1.45 : aspect < 1.8 ? 2.0 : 1.6
@@ -20,7 +22,19 @@ function Model() {
   )
 }
 
-useGLTF.preload('/assets/3d/rabbit_mug.glb')
+// Reflections for the glaze, built in-engine and baked once: drei's `preset`
+// environments download a ~1.5 MB .hdr from a third-party CDN on every visit.
+export function StudioEnv({ intensity = 0.55 }) {
+  return (
+    <Environment resolution={64} frames={1} environmentIntensity={intensity}>
+      <color attach="background" args={['#efe4da']} />
+      {/* warm key above-front, cool fill from the left, soft rim behind */}
+      <Lightformer form="rect" intensity={2.4} color="#fff3e2" position={[0, 1.8, 2.2]} scale={[5, 3.5, 1]} target={[0, 0, 0]} />
+      <Lightformer form="rect" intensity={1} color="#eaf1f6" position={[-2.6, 0.5, 1.4]} scale={[3.5, 3.5, 1]} target={[0, 0, 0]} />
+      <Lightformer form="ring" intensity={1.4} color="#fffaf3" position={[-1.2, 2.2, -2.6]} scale={2.4} target={[0, 0, 0]} />
+    </Environment>
+  )
+}
 
 export default function HeroMug() {
   return (
@@ -41,7 +55,7 @@ export default function HeroMug() {
       <directionalLight position={[-1.5, 3, -4]} intensity={0.7} color="#fffaf3" />
       <Suspense fallback={null}>
         <Model />
-        <Environment preset="apartment" environmentIntensity={0.55} />
+        <StudioEnv />
         <ContactShadows position={[0, -2.5, 0]} opacity={0.22} scale={11} blur={3.4} far={5} color="#5f7e48" />
       </Suspense>
     </Canvas>

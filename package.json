@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "img": "node scripts/img.mjs",
     "goats": "node scripts/goats.mjs",
+    "glb": "node scripts/glb.mjs",
     "brand": "node scripts/brand.mjs"
   },
   "dependencies": {

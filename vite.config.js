@@ -8,15 +8,10 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     assetsInlineLimit: 0,
+    // No manualChunks on purpose: the 3D components are dynamically imported
+    // (src/three/*), so Rollup keeps three + r3f + drei in a chunk that only the
+    // pages with a model fetch. Grouping them by hand pulled React into the r3f
+    // chunk, which made the entry import three on every page.
     chunkSizeWarningLimit: 1400,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          three: ['three'],
-          r3f: ['@react-three/fiber', '@react-three/drei'],
-          react: ['react', 'react-dom'],
-        },
-      },
-    },
   },
 })

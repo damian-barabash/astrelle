@@ -1673,21 +1673,23 @@ p {
   position: absolute;
   max-width: none;
 }
-.shop__goat--a {
-  left: 5%;
-  bottom: 8%;
-  width: 30%;
-  transform: rotate(-4deg);
-}
 .shop__goat--b {
-  right: 6%;
-  top: 8%;
-  width: 32%;
+  right: 5%;
+  top: 6%;
+  width: 24%;
 }
 .shop__goat--c {
-  left: 38%;
-  bottom: 9%;
-  width: 46%;
+  left: 4%;
+  bottom: 6%;
+  width: 26%;
+}
+/* the 3D plate fills the card; the goats sit in two corners */
+.plate {
+  position: absolute;
+  inset: 4%;
+}
+.plate canvas {
+  touch-action: pan-y;
 }
 
 .legal {

@@ -1,7 +1,9 @@
+import { lazy, Suspense } from 'react'
 import { useT } from '../i18n/index.jsx'
 import { T } from '../content/edit.jsx'
 import LeadForm from '../blocks/LeadForm.jsx'
 import Goat from '../components/Goat.jsx'
+const CeramicPlate = lazy(() => import('../three/CeramicPlate.jsx'))
 
 // The shop is not open yet: a calm "opening in October" page with a waiting list.
 export default function Sklep() {
@@ -15,8 +17,11 @@ export default function Sklep() {
           <T k="shop.sub" as="p" className="shop__sub" multiline />
           <LeadForm kind="shop" compact />
         </div>
+        {/* a real plate from the studio — the first thing the shop will sell */}
         <div className="shop__art">
-          <Goat n={2} className="shop__goat shop__goat--a" />
+          <Suspense fallback={null}>
+            <CeramicPlate className="shop__plate" />
+          </Suspense>
           <Goat n={6} className="shop__goat shop__goat--b" />
           <Goat n={8} className="shop__goat shop__goat--c" />
         </div>

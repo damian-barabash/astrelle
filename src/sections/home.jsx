@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useT } from '../i18n/index.jsx'
 import { T, Img, List, Section, useEdit } from '../content/edit.jsx'
 import Goat from '../components/Goat.jsx'
-import HeroMug from '../three/HeroMug.jsx'
+// three.js is ~300 KB gzipped — load it only on pages that actually show a model
+const HeroMug = lazy(() => import('../three/HeroMug.jsx'))
 
 const IMG = (n) => `/assets/img/photo-${n}.webp`
 const pad2 = (n) => String(n + 1).padStart(2, '0')
@@ -18,7 +19,9 @@ export function Hero() {
         <div className="hero__top">
           <div className="hero__mug" aria-hidden="true">
             <div className="hero__stage">
-              <HeroMug />
+              <Suspense fallback={null}>
+                <HeroMug />
+              </Suspense>
             </div>
           </div>
           <h1 className="hero__title">
