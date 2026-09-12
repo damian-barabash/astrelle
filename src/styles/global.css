@@ -409,6 +409,8 @@ p {
    ========================================================================= */
 /* ---- hero ---- */
 .hero {
+  /* one headline line ≈ 0.94 × this — the mug is positioned in these units */
+  --hero-fs: clamp(42px, calc(7.6 * var(--vw)), 112px);
   padding-top: calc(var(--top-h) + clamp(28px, calc(6 * var(--vw)), 72px));
   padding-bottom: clamp(32px, calc(5 * var(--vw)), 64px);
 }
@@ -418,7 +420,7 @@ p {
 .hero__title {
   position: relative;
   z-index: 1;
-  font-size: clamp(42px, calc(7.6 * var(--vw)), 112px);
+  font-size: var(--hero-fs);
   max-width: 14ch;
   animation: rise 0.7s ease both;
 }
@@ -1964,9 +1966,10 @@ p {
   /* same layout as on desktop: the mug sits behind the headline, off the right edge */
   .hero__mug {
     right: -4%;
-    top: auto;
-    bottom: 26px;
+    top: calc(var(--hero-fs) * 2.05);
+    bottom: auto;
     width: 56%;
+    transform: translateY(-50%);
   }
   .hero__caption {
     margin-top: 6px;
@@ -2220,9 +2223,10 @@ p {
   /* same layout as on desktop: the mug sits behind the headline, off the right edge */
   .hero__mug {
     right: -4%;
-    top: auto;
-    bottom: 26px;
+    top: calc(var(--hero-fs) * 2.05);
+    bottom: auto;
     width: 56%;
+    transform: translateY(-50%);
   }
   .hero__caption {
     margin-top: 6px;
