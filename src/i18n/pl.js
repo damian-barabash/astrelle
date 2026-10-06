@@ -7,13 +7,12 @@ export default {
   nav: { home: 'Start', calendar: 'Kalendarz', shop: 'Sklep', book: 'Zapisz się', menu: 'Menu', close: 'Zamknij' },
 
   hero: {
-    l1: 'Usiądź przy kole.',
-    l2: 'Glina zrobi',
-    l3: 'resztę.',
-    col1: 'Pracownia ceramiki w centrum Warszawy. Warsztaty dla początkujących, kurs i coworking dla tych, którzy już lepią.',
-    col2: 'Wychodzisz z własnym naczyniem. Glinę, szkliwo i dwa wypały bierzemy na siebie.',
-    tag1: 'studio AINO · Warszawa',
-    tag2: 'ul. Mała 5a',
+    h1: 'Twoje ręce.',
+    h2: 'Nasza glina.',
+    k1: 'Pracownia ceramiki',
+    k2: 'ul. Mała 5a, Warszawa',
+    p1: 'Warsztaty, kurs i coworking w centrum Warszawy — także dla tych, którzy nigdy nie dotykali gliny.',
+    p2: 'Wychodzisz z własnym naczyniem. Glina, szkliwo i dwa wypały są w cenie.',
     cta: 'Wybierz termin',
     cta2: 'Cennik',
   },
@@ -36,6 +35,8 @@ export default {
   },
 
   band: { caption: 'Koło, piec, duży stół — i cisza, w której słychać glinę.' },
+
+  terms: { title: 'Najbliższe terminy', all: 'Cały kalendarz', date: 'Data', time: 'Godzina', what: 'Zajęcia', seats: 'Wolne miejsca', price: 'Cena' },
 
   steps: {
     label: 'Jak to działa',

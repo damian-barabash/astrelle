@@ -4,6 +4,7 @@ import { T } from '../content/edit.jsx'
 import { Logo } from './Brand.jsx'
 import { NAV } from './Topbar.jsx'
 import Goat from './Goat.jsx'
+import { Shape, Print, Spark } from './Shapes.jsx'
 import { resetConsent } from '../lib/consent.js'
 
 export default function Footer() {
@@ -15,11 +16,9 @@ export default function Footer() {
           <div className="foot__brand">
             <Logo className="foot__logo" />
             <T k="footer.tagline" as="p" className="foot__tag" />
-            <div className="foot__goats">
-              {[1, 13, 8].map((n) => (
-                <Goat key={n} n={n} className="foot__goat" />
-              ))}
-            </div>
+            <NavLink className="btn btn--lg foot__cta" to="/kalendarz">
+              {t('nav.book')} →
+            </NavLink>
           </div>
           <nav className="foot__col" aria-label="Menu">
             <span className="label">Menu</span>
@@ -28,7 +27,6 @@ export default function Footer() {
                 {t(key)}
               </NavLink>
             ))}
-            <NavLink to="/kalendarz">{t('nav.book')}</NavLink>
           </nav>
           <div className="foot__col">
             <span className="label"><T k="footer.legal" /></span>
@@ -55,8 +53,16 @@ export default function Footer() {
         </div>
         <div className="foot__bottom">
           <span>© {new Date().getFullYear()} Astrelle · {t('footer.rights')}</span>
-          <span>✦ {t('footer.made')}</span>
+          <span>{t('footer.made')}</span>
         </div>
+      </div>
+      {/* a jar on the turning wheel, with two goats keeping it company */}
+      <div className="foot__art" aria-hidden="true">
+        <Print n={26} seed={6} className="foot__rings" />
+        <Shape name="jar" className="foot__jar" />
+        <Goat n={1} className="foot__goat foot__goat--a" />
+        <Goat n={7} className="foot__goat foot__goat--b" />
+        <Spark className="foot__spark" />
       </div>
     </footer>
   )

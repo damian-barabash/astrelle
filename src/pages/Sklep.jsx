@@ -3,6 +3,7 @@ import { useT } from '../i18n/index.jsx'
 import { T } from '../content/edit.jsx'
 import LeadForm from '../blocks/LeadForm.jsx'
 import Goat from '../components/Goat.jsx'
+import { Rings } from '../components/Shapes.jsx'
 const CeramicPlate = lazy(() => import('../three/CeramicPlate.jsx'))
 
 // The shop is not open yet: a calm "opening in October" page with a waiting list.
@@ -19,6 +20,7 @@ export default function Sklep() {
         </div>
         {/* a real plate from the studio — the first thing the shop will sell */}
         <div className="shop__art">
+          <Rings className="shop__rings" />
           <Suspense fallback={null}>
             <CeramicPlate className="shop__plate" />
           </Suspense>

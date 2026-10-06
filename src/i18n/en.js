@@ -7,13 +7,12 @@ export default {
   nav: { home: 'Home', calendar: 'Calendar', shop: 'Shop', book: 'Book a seat', menu: 'Menu', close: 'Close' },
 
   hero: {
-    l1: 'Sit at the wheel.',
-    l2: 'Clay does',
-    l3: 'the rest.',
-    col1: 'A ceramics studio in the centre of Warsaw. Workshops for beginners, a course and coworking for those who already throw.',
-    col2: 'You leave with your own piece. Clay, glaze and two firings are on us.',
-    tag1: 'studio AINO · Warsaw',
-    tag2: 'ul. Mała 5a',
+    h1: 'Your hands.',
+    h2: 'Our clay.',
+    k1: 'Ceramics studio',
+    k2: 'ul. Mała 5a, Warsaw',
+    p1: 'Workshops, a course and coworking in the centre of Warsaw — also for people who have never touched clay.',
+    p2: 'You leave with your own piece. Clay, glaze and two firings are included.',
     cta: 'Pick a date',
     cta2: 'Prices',
   },
@@ -36,6 +35,8 @@ export default {
   },
 
   band: { caption: 'A wheel, a kiln, a big table — and the quiet in which you can hear the clay.' },
+
+  terms: { title: 'Next dates', all: 'Full calendar', date: 'Date', time: 'Time', what: 'Session', seats: 'Seats left', price: 'Price' },
 
   steps: {
     label: 'How it works',
