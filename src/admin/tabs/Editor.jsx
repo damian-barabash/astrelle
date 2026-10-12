@@ -63,7 +63,7 @@ export default function Editor() {
     Promise.all([fetchContent(), loadSettings(token, true)]).then(([db, s]) => {
       // docs from before the 2026-10 rewrite are ignored, exactly as on the site
       setDocs({ ru: liveDoc('ru', db.ru), pl: liveDoc('pl', db.pl), en: liveDoc('en', db.en) })
-      setSettings({ images: s.images || {}, layout: s.layout || {}, studio: s.studio || {}, partner: s.partner || {} })
+      setSettings({ images: s.images || {}, layout: s.layout || {}, studio: s.studio || {}, shop: s.shop || {}, partner: s.partner || {} })
       setDirty({})
       setLayoutDirty(false)
     })
@@ -161,7 +161,7 @@ export default function Editor() {
 
   const selValue = selected ? pick(docs[lang], selected) : null
   const ed = { lang, selected, select: setSelected, set, pickImage, resetImage, busyImage, moveSection, toggleSection }
-  const override = { lang, setLang, dicts: docs, images: settings.images, layout: settings.layout, studio: settings.studio, partner: settings.partner }
+  const override = { lang, setLang, dicts: docs, images: settings.images, layout: settings.layout, studio: settings.studio, shop: settings.shop, partner: settings.partner }
 
   return (
     <div className="edt">

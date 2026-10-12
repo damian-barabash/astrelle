@@ -1,5 +1,5 @@
 // Polish — primary market. Short copy: every string is meant to be read in one breath.
-// Astrelle is the ceramist's brand; classes, payments, vouchers and the shop belong to
+// Astrelle is the ceramist's brand; classes, their payments and vouchers belong to
 // the partner studio Wizards of Art, and every "book / buy" link leads to their site.
 export default {
   __v: 2,
@@ -25,7 +25,7 @@ export default {
   partner: {
     label: 'Jak działamy',
     title: 'Astrelle w pracowni Wizards of Art',
-    text: 'Nie prowadzimy własnej pracowni — nasza mistrzyni pracuje w Wizards of Art, kreatywnej przestrzeni Weroniki Kowal. Dlatego wszystko, co dotyczy gliny, kupujesz u nich.',
+    text: 'Nie prowadzimy własnej pracowni — nasza mistrzyni pracuje w Wizards of Art, kreatywnej przestrzeni Weroniki Kowal. Dlatego na zajęcia zapisujesz się u nich, a vouchery kupujesz na ich stronie.',
     points: [
       { t: 'My', d: 'Podpowiadamy format, pokazujemy ceny i prowadzimy Cię prosto do zapisu.' },
       { t: 'Pracownia', d: 'Przyjmuje zapisy i płatności, wystawia vouchery, wypala i szkliwi prace.' },
@@ -201,7 +201,7 @@ export default {
     printLabel: 'Drukowany',
     buy: 'Kup w Wizards of Art',
     buyShort: 'Kup',
-    facts: ['Ważny 3 miesiące od zakupu', 'Na dowolne zajęcia albo do sklepu pracowni', 'Druk 10 zł · wysyłka 20 zł'],
+    facts: ['Ważny 3 miesiące od zakupu', 'Na dowolne zajęcia pracowni', 'Druk 10 zł · wysyłka 20 zł'],
     items: {
       vou_online: { t: 'Voucher elektroniczny', d: 'Kwoty 220, 300, 400, 500, 600 zł albo własna — od 100 zł. Kod promocyjny przychodzi e-mailem zaraz po opłaceniu.' },
       vou_group: { t: 'Zajęcia grupowe', d: 'Jedno miejsce na warsztatach w grupie.' },
@@ -214,21 +214,14 @@ export default {
 
   shop: {
     title: 'Sklep',
-    label: 'Ceramika z pracowni',
-    sub: 'Kubki, miski i talerze robione ręcznie. Sprzedaje je sklep Wizards of Art — tu kilka rzeczy z ich półki.',
-    btn: 'Cały sklep pracowni',
-    go: 'Zobacz w sklepie',
-    note: 'Zamówienie, płatność i dostawa — po stronie sklepu Wizards of Art.',
-    items: {
-      shop_bowl_star: 'Miseczka z rozgwiazdą „Ahoy”, 15 cm',
-      shop_plate_crab: 'Talerz z krabem „Ahoy there”, 25 cm',
-      shop_candle: 'Świecznik w gwiazdki',
-      shop_mug_white: 'Biały kubek robiony ręcznie',
-      shop_mug_latte: 'Brązowe kubki do latte',
-      shop_plate_custom: 'Talerz z personalizacją — ślub, rocznica',
-      shop_bowl_fruit: 'Duża misa na owoce',
-      shop_spoon: 'Podstawka pod łyżkę z cytryną',
-    },
+    soon: 'Otwarcie w październiku',
+    sub: 'Kubki, miski i talerze z pracowni. Każda sztuka jedyna — jak dzień, w którym powstała.',
+    waitTitle: 'Daj znać, gdy ruszymy',
+    contact: 'E-mail lub telefon',
+    consent: 'Chcę dostać wiadomość o otwarciu sklepu.',
+    btn: 'Zapisz mnie',
+    ok: 'Zapisane. Odezwiemy się, gdy sklep ruszy.',
+    err: 'Nie udało się. Spróbuj ponownie.',
   },
 
   where: {
@@ -272,7 +265,7 @@ export default {
 
   footer: {
     tagline: 'Ceramika tworzona rękami',
-    partner: 'Zajęcia prowadzimy w pracowni Wizards of Art. Zapisy i sprzedaż — na ich stronie.',
+    partner: 'Zajęcia prowadzimy w pracowni Wizards of Art. Zapisy i vouchery — na ich stronie.',
     rights: 'Wszelkie prawa zastrzeżone',
     legal: 'Dokumenty',
     privacy: 'Polityka prywatności',
@@ -313,8 +306,8 @@ export default {
       updated: 'Aktualizacja: październik 2026',
       blocks: [
         { h: 'Administrator', p: 'Administratorem danych zbieranych na tej stronie jest {company}. Kontakt: {email}.' },
-        { h: 'Czego tu nie zbieramy', p: 'Na astrelle.pl nie ma zapisów ani płatności. Rezerwacje, zakupy i vouchery obsługuje pracownia Wizards of Art na swojej stronie — tam obowiązuje jej polityka prywatności.' },
-        { h: 'Jakie dane zbieramy', p: 'Przez formularz kontaktowy: imię, telefon lub e-mail i treść wiadomości. Przy kliknięciu w link do pracowni zapisujemy, który link wybrano, i losowy kod przejścia — bez danych osobowych. Anonimowe statystyki odwiedzin — wyłącznie za zgodą.' },
+        { h: 'Czego tu nie zbieramy', p: 'Na astrelle.pl nie ma zapisów ani płatności za zajęcia. Rezerwacje i vouchery obsługuje pracownia Wizards of Art na swojej stronie — tam obowiązuje jej polityka prywatności.' },
+        { h: 'Jakie dane zbieramy', p: 'Przez formularz kontaktowy i listę oczekujących sklepu: imię, telefon lub e-mail i treść wiadomości. Przy kliknięciu w link do pracowni zapisujemy, który link wybrano, i losowy kod przejścia — bez danych osobowych. Anonimowe statystyki odwiedzin — wyłącznie za zgodą.' },
         { h: 'Po co', p: 'Aby odpowiedzieć na pytanie (art. 6 ust. 1 lit. b RODO), rozliczać współpracę z pracownią i wiedzieć, które formaty są wybierane (prawnie uzasadniony interes, lit. f) oraz — za zgodą — mierzyć ruch na stronie (lit. a).' },
         { h: 'Linki do pracowni', p: 'Adres, pod który przechodzisz, zawiera oznaczenie źródła (utm_source=astrelle) i kod przejścia. Dzięki temu pracownia wie, że trafiłeś do niej od nas. Nie przekazujemy pracowni Twoich danych kontaktowych.' },
         { h: 'Jak długo', p: 'Zapytania przechowujemy do 3 lat od ostatniego kontaktu, chyba że wcześniej poprosisz o ich usunięcie. Zapisy kliknięć i statystyki są anonimowe.' },
@@ -339,10 +332,10 @@ export default {
       updated: 'Aktualizacja: październik 2026',
       blocks: [
         { h: 'Czym jest ta strona', p: 'Astrelle to marka ceramiczki Stasi Kulik. Strona przedstawia zajęcia, które odbywają się w pracowni Wizards of Art w Warszawie, i prowadzi do zapisu na jej stronie.' },
-        { h: 'Kto sprzedaje', p: 'Organizatorem i sprzedawcą zajęć, voucherów oraz ceramiki jest Wizards of Art. Umowę zawierasz z pracownią, na jej stronie i według jej regulaminu. Astrelle nie przyjmuje zapisów ani płatności.' },
+        { h: 'Kto sprzedaje', p: 'Organizatorem i sprzedawcą zajęć oraz voucherów jest Wizards of Art. Umowę zawierasz z pracownią, na jej stronie i według jej regulaminu. Astrelle nie przyjmuje zapisów ani płatności za zajęcia.' },
         { h: 'Ceny i opisy', p: 'Ceny i opisy pochodzą z oferty pracowni i mają charakter informacyjny. Wiążąca jest cena i dostępność podana na stronie Wizards of Art w chwili zapisu.' },
         { h: 'Zmiana i odwołanie terminu', p: 'Obowiązują zasady pracowni: termin można zmienić lub odwołać najpóźniej 24 godziny przed zajęciami; później opłata nie podlega zwrotowi.' },
-        { h: 'Vouchery i reklamacje', p: 'Vouchery są ważne 3 miesiące od zakupu. Zwroty i reklamacje rozpatruje pracownia Wizards of Art.' },
+        { h: 'Vouchery i reklamacje', p: 'Vouchery są ważne 3 miesiące od zakupu. Zwroty i reklamacje zajęć oraz voucherów rozpatruje pracownia Wizards of Art.' },
         { h: 'Kontakt', p: '{company}, {email}. Zajęcia: {address}.' },
       ],
     },

@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { callFn } from '../../lib/supabase.js'
 import { useAdmin } from '../auth.jsx'
 import { Chip, Modal, useToast, fmtDT, fmtDate, copyText, downloadCsv, offerLabel, offerKind, placeLabel, money, SALE_STATUS, SALE_SOURCE, useSiteSettings, loadSettings, patchSettingsCache } from '../ui.jsx'
-import { OFFERS, VOUCHERS, PRODUCTS, ALL_ITEMS, priceText } from '../../data/offers.js'
+import { OFFERS, VOUCHERS, ALL_ITEMS, priceText } from '../../data/offers.js'
 
 const PERIODS = [[7, '7 дней'], [30, '30 дней'], [90, '90 дней'], [365, 'Год']]
 const SUB = [['', 'Обзор'], ['przejscia', 'Переходы'], ['sprzedaz', 'Покупки'], ['oferta', 'Предложения и цены'], ['podlaczenie', 'Как узнаём о покупках']]
@@ -48,7 +48,6 @@ export function SaleModal({ sale, click, pctDefault, onClose, onDone }) {
             <option value="">— другое / не знаю —</option>
             <optgroup label="Занятия">{OFFERS.map((o) => <option key={o.id} value={o.id}>{offerLabel(o.id)}</option>)}</optgroup>
             <optgroup label="Сертификаты">{VOUCHERS.map((o) => <option key={o.id} value={o.id}>{offerLabel(o.id)}</option>)}</optgroup>
-            <optgroup label="Магазин">{PRODUCTS.map((o) => <option key={o.id} value={o.id}>{offerLabel(o.id)}</option>)}</optgroup>
           </select>
         </label>
         {!f.offer && <label className="af"><span className="af__lbl">Название (как в отчёте студии)</span><input value={f.title} onChange={(e) => set('title', e.target.value)} /></label>}
@@ -149,7 +148,6 @@ function OffersEditor() {
       <p className="edt__hint" style={{ marginBottom: 12 }}>Пустое поле = значение по умолчанию (оно показано серым). Цена — число (на сайте добавится «zł») или любой текст. Ссылка — полный адрес страницы студии; метки отслеживания сайт допишет сам. Названия и описания правятся в «Редакторе сайта».</p>
       {group('Занятия', OFFERS)}
       {group('Сертификаты', VOUCHERS)}
-      {group('Магазин', PRODUCTS)}
       <div className="amodal__act"><button className="abtn" onClick={save}>Сохранить цены и ссылки</button></div>
     </>
   )

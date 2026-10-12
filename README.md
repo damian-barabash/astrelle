@@ -16,14 +16,14 @@ React + Vite, 3 języki (PL / RU / EN — domyślnie język urządzenia).
 | `/warsztaty` | wszystkie formaty z gliną w 5 grupach (lepienie, koło, malowanie, dzieci i rodziny, pracownia) |
 | `/warsztaty/:id` | strona jednego formatu: opis, cena, co w cenie, adres, przycisk do zapisu w pracowni |
 | `/voucher` | voucher elektroniczny i drukowane — linki do produktów pracowni |
-| `/sklep` | wybór ceramiki ze sklepu pracowni |
+| `/sklep` | własny sklep Astrelle — na razie „otwarcie wkrótce” + lista oczekujących (gotowa półka produktów: `src/blocks/Shelf.jsx`) |
 | `/kontakt` | pracownia (zapisy) i Astrelle (formularz „Napisz do Stasi”) |
 | `/polityka-prywatnosci` `/cookies` `/regulamin` | dokumenty (edytowalne w panelu) |
 | `/admin` | panel: Dziś · Partner (przejścia i zakupy) · Wiadomości · Edytor wizualny · Galeria · Analityka · Logi · Ustawienia |
 
 ## Linki do pracowni i śledzenie
 
-- Oferta, vouchery i produkty: `src/data/offers.js` (ceny i adresy domyślne). W panelu
+- Oferta i vouchery: `src/data/offers.js` (ceny i adresy domyślne). W panelu
   (`Partner → Предложения и цены`) można nadpisać cenę i link albo ukryć pozycję
   (`site_settings.partner.offers`).
 - Każdy link wychodzący to komponent `Out` (`src/components/Out.jsx`): dopisuje
@@ -73,7 +73,7 @@ npm run preview    # podgląd produkcyjnego buildu
 npx supabase functions deploy <nazwa> --project-ref wynmqmwvjwdwjwlixwvc --no-verify-jwt --use-api
 ```
 
-Funkcje publiczne: `go` (kliknięcie w link do pracowni), `lead` (formularz kontaktowy),
+Funkcje publiczne: `go` (kliknięcie w link do pracowni), `lead` (formularz kontaktowy i lista oczekujących sklepu),
 `analytics-track`, `partner-hook` (webhook pracowni, klucz w adresie). Admin (token sesji w body):
 `admin-auth`, `admin-content`, `admin-partner`, `admin-crm`, `admin-gallery`, `admin-analytics`,
 `admin-logs`. Kalendarz zapisów i rezerwacje zostały usunięte w 10.2026 (tabele `events` / `bookings`

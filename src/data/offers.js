@@ -1,6 +1,6 @@
 // Everything Astrelle points to at the partner studio. Astrelle does not sell clay
-// classes itself: Stasia teaches at Wizards of Art, and every booking, payment, voucher
-// and shop order happens on their site. Names and descriptions live in the language
+// classes itself: Stasia teaches at Wizards of Art, and every booking, payment and
+// voucher happens on their site. (The shop is Astrelle's own — see pages/Sklep.jsx.) Names and descriptions live in the language
 // docs (offers.items.<id>); prices and links here are the defaults — the admin can
 // override them per offer (site_settings.partner.offers[id] = { price, url, hidden }).
 export const PARTNER = {
@@ -10,7 +10,6 @@ export const PARTNER = {
   adults: 'https://www.wizardsofarts.com/dla-dorosłych',
   kids: 'https://www.wizardsofarts.com/dla-dzieci',
   vouchers: 'https://www.wizardsofarts.com/vouchery',
-  shop: 'https://www.wizardsofarts.com/category/all-products',
   contact: 'https://www.wizardsofarts.com/kontakty',
   terms: 'https://www.wizardsofarts.com/regulamin-serwisu-internetowego',
   phone: '+48 576 119 840',
@@ -73,21 +72,9 @@ export const VOUCHERS = [
   { id: 'vou_wheel_pair', price: 600, kind: 'print', url: P + 'друкований-сертифікат-на-парне-заняття-з-гончарного-кола-600-zl' },
 ]
 
-// A short pick from the studio's shop; the full shelf is on their site.
-export const PRODUCTS = [
-  { id: 'shop_bowl_star', shape: 'bowl', price: 150, url: P + 'ręcznie-malowana-miseczka-ceramiczna-z-rozgwiazdą-ahoy-15-cm' },
-  { id: 'shop_plate_crab', shape: 'plate', price: 200, url: P + 'ręcznie-robiony-talerz-ceramiczny-z-krabem-ahoy-there-25-cm' },
-  { id: 'shop_candle', shape: 'cup', price: 150, url: P + 'ręcznie-robiony-świecznik-ceramiczny-w-gwiazdki' },
-  { id: 'shop_mug_white', shape: 'mug', price: 177, url: P + 'biały-ceramiczny-ręcznie-robiony-kubek-1' },
-  { id: 'shop_mug_latte', shape: 'mug', price: 155, from: true, url: P + 'brązowe-ceramiczne-kubki-do-latte' },
-  { id: 'shop_plate_custom', shape: 'plate', price: 150, url: P + 'personalizowany-talerz-ceramiczny-na-ślub-lub-rocznicę-ręcznie-robiony-talerz' },
-  { id: 'shop_bowl_fruit', shape: 'bowl', price: 177, from: true, url: P + 'duża-miska-na-owoce-ręcznie-robiona-ceramika-1' },
-  { id: 'shop_spoon', shape: 'tag', price: 124, url: P + 'ceramiczna-podstawka-pod-łyżkę-do-kawy-z-cytryną' },
-]
-
-export const ALL_ITEMS = [...OFFERS, ...VOUCHERS, ...PRODUCTS]
+export const ALL_ITEMS = [...OFFERS, ...VOUCHERS]
 // ids the click tracker also accepts (links that are not a single product)
-export const EXTRA_TARGETS = ['schedule', 'site', 'shop', 'vouchers', 'adults', 'kids', 'contact', 'terms', 'instagram']
+export const EXTRA_TARGETS = ['schedule', 'site', 'vouchers', 'adults', 'kids', 'contact', 'terms', 'instagram']
 
 export const offerById = (id) => OFFERS.find((o) => o.id === id)
 

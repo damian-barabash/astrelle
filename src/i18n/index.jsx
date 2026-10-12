@@ -66,7 +66,7 @@ export function LangProvider({ children, override }) {
     return saved && BUNDLED[saved] ? saved : detectLang()
   })
   const [dicts, setDicts] = useState(BUNDLED)
-  const [settings, setSettings] = useState({ images: {}, layout: {}, studio: {}, partner: {} })
+  const [settings, setSettings] = useState({ images: {}, layout: {}, shop: {}, studio: {}, partner: {} })
 
   useEffect(() => {
     if (override) return
@@ -84,7 +84,7 @@ export function LangProvider({ children, override }) {
       })
       .catch(() => { /* keep bundled fallback — the site stays fully functional */ })
     fetchSettings()
-      .then((s) => alive && setSettings({ images: s.images || {}, layout: s.layout || {}, studio: s.studio || {}, partner: s.partner || {} }))
+      .then((s) => alive && setSettings({ images: s.images || {}, layout: s.layout || {}, shop: s.shop || {}, studio: s.studio || {}, partner: s.partner || {} }))
       .catch(() => {})
     return () => {
       alive = false
@@ -101,6 +101,7 @@ export function LangProvider({ children, override }) {
     for (const [k, v] of Object.entries(override?.studio || settings.studio || {})) if (v) out[k] = v
     return out
   }, [override, settings.studio])
+  const shop = override?.shop || settings.shop
   const partner = useMemo(() => ({ ...DEFAULT_PARTNER, ...(override?.partner || settings.partner || {}) }), [override, settings.partner])
 
   const setLang = useCallback((l) => (override?.setLang ? override.setLang(l) : setLangState(l)), [override])
@@ -117,8 +118,8 @@ export function LangProvider({ children, override }) {
   const img = useCallback((key, fallback) => images?.[key] || fallback, [images])
 
   const value = useMemo(
-    () => ({ lang: curLang, setLang, t, img, images, layout, studio, partner, dicts: curDicts }),
-    [curLang, setLang, t, img, images, layout, studio, partner, curDicts]
+    () => ({ lang: curLang, setLang, t, img, images, layout, studio, shop, partner, dicts: curDicts }),
+    [curLang, setLang, t, img, images, layout, studio, shop, partner, curDicts]
   )
   return <LangCtx.Provider value={value}>{children}</LangCtx.Provider>
 }

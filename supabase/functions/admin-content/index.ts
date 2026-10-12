@@ -1,9 +1,9 @@
 // Astrelle admin content: site copy (jsonb per language), block images, site settings
-// (section layout, our contact details, the partner block: promo code, offer overrides).
+// (section layout, shop note, our contact details, the partner block: promo code, offer overrides).
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { CORS, json, rest, restJson, resolveAdmin, audit, bg } from "../_shared/common.ts";
 
-const SETTING_KEYS = ["layout", "studio", "partner"];
+const SETTING_KEYS = ["layout", "shop", "studio", "partner"];
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });

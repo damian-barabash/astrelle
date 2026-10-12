@@ -1,5 +1,5 @@
 // English — short copy for visitors and expats: every string is meant to be read in one breath.
-// Astrelle is the ceramist's brand; classes, payments, vouchers and the shop belong to
+// Astrelle is the ceramist's brand; classes, their payments and vouchers belong to
 // the partner studio Wizards of Art, and every "book / buy" link leads to their site.
 export default {
   __v: 2,
@@ -25,7 +25,7 @@ export default {
   partner: {
     label: 'How we work',
     title: 'Astrelle at the Wizards of Art studio',
-    text: 'We do not run our own studio — our ceramist works at Wizards of Art, the creative space of Weronika Kowal. So everything to do with clay, you buy from them.',
+    text: 'We do not run our own studio — our ceramist works at Wizards of Art, the creative space of Weronika Kowal. So you book classes with them and buy vouchers on their website.',
     points: [
       { t: 'We', d: 'Suggest a format, show the prices and take you straight to booking.' },
       { t: 'The studio', d: 'Takes bookings and payments, issues vouchers, fires and glazes the work.' },
@@ -201,7 +201,7 @@ export default {
     printLabel: 'Printed',
     buy: 'Buy at Wizards of Art',
     buyShort: 'Buy',
-    facts: ['Valid 3 months from purchase', 'For any class or the studio shop', 'Print 10 zł · shipping 20 zł'],
+    facts: ['Valid 3 months from purchase', 'For any class at the studio', 'Print 10 zł · shipping 20 zł'],
     items: {
       vou_online: { t: 'Electronic voucher', d: 'Amounts of 220, 300, 400, 500, 600 zł or your own — from 100 zł. The promo code arrives by e-mail right after payment.' },
       vou_group: { t: 'Group class', d: 'One place at a group workshop.' },
@@ -214,21 +214,14 @@ export default {
 
   shop: {
     title: 'Shop',
-    label: 'Ceramics from the studio',
-    sub: 'Handmade mugs, bowls and plates. They are sold by the Wizards of Art shop — here are a few things from their shelf.',
-    btn: 'The whole studio shop',
-    go: 'See in the shop',
-    note: 'Order, payment and delivery are handled by the Wizards of Art shop.',
-    items: {
-      shop_bowl_star: 'Small bowl with a starfish “Ahoy”, 15 cm',
-      shop_plate_crab: 'Plate with a crab “Ahoy there”, 25 cm',
-      shop_candle: 'Candle holder with stars',
-      shop_mug_white: 'White handmade mug',
-      shop_mug_latte: 'Brown latte mugs',
-      shop_plate_custom: 'Personalised plate — wedding, anniversary',
-      shop_bowl_fruit: 'Large fruit bowl',
-      shop_spoon: 'Spoon rest with a lemon',
-    },
+    soon: 'Opening in October',
+    sub: 'Mugs, bowls and plates from the studio. Every piece is one of a kind — like the day it was made.',
+    waitTitle: 'Tell me when it opens',
+    contact: 'E-mail or phone',
+    consent: 'I want to be notified when the shop opens.',
+    btn: 'Notify me',
+    ok: 'Saved. We will write when the shop opens.',
+    err: 'Something went wrong. Please try again.',
   },
 
   where: {
@@ -272,7 +265,7 @@ export default {
 
   footer: {
     tagline: 'Ceramics made by hand',
-    partner: 'We teach at the Wizards of Art studio. Bookings and sales — on their website.',
+    partner: 'We teach at the Wizards of Art studio. Bookings and vouchers — on their website.',
     rights: 'All rights reserved',
     legal: 'Documents',
     privacy: 'Privacy policy',
@@ -314,7 +307,7 @@ export default {
       blocks: [
         { h: 'Controller', p: 'The controller of the data collected on this website is {company}. Contact: {email}.' },
         { h: 'What we do not collect here', p: 'There are no bookings or payments on astrelle.pl. Reservations, purchases and vouchers are handled by the Wizards of Art studio on its own website — its privacy policy applies there.' },
-        { h: 'What data we collect', p: 'Through the contact form: name, phone or e-mail and the content of the message. When you click a link to the studio we record which link was chosen and a random click code — no personal data. Anonymous visit statistics — only with consent.' },
+        { h: 'What data we collect', p: 'Through the contact form and the shop waiting list: name, phone or e-mail and the content of the message. When you click a link to the studio we record which link was chosen and a random click code — no personal data. Anonymous visit statistics — only with consent.' },
         { h: 'Why', p: 'To answer your question (Art. 6(1)(b) GDPR), to settle our cooperation with the studio and to know which formats are chosen (legitimate interest, (f)) and — with consent — to measure traffic on the site ((a)).' },
         { h: 'Links to the studio', p: 'The address you go to contains a source tag (utm_source=astrelle) and a click code. This is how the studio knows you came to it from us. We do not pass your contact details to the studio.' },
         { h: 'How long', p: 'We keep enquiries for up to 3 years from the last contact, unless you ask us to delete them earlier. Click records and statistics are anonymous.' },
@@ -339,7 +332,7 @@ export default {
       updated: 'Updated: October 2026',
       blocks: [
         { h: 'What this website is', p: 'Astrelle is the brand of ceramist Stasia Kulik. The site presents classes that take place at the Wizards of Art studio in Warsaw and leads to booking on its website.' },
-        { h: 'Who sells', p: 'The organiser and seller of the classes, vouchers and ceramics is Wizards of Art. You enter into the contract with the studio, on its website and under its terms. Astrelle does not accept bookings or payments.' },
+        { h: 'Who sells', p: 'The organiser and seller of the classes and vouchers is Wizards of Art. You enter into the contract with the studio, on its website and under its terms. Astrelle does not accept bookings or payments for classes.' },
         { h: 'Prices and descriptions', p: 'Prices and descriptions come from the studio offer and are for information only. The binding price and availability are those given on the Wizards of Art website at the time of booking.' },
         { h: 'Changing and cancelling a date', p: 'The studio rules apply: a date can be changed or cancelled no later than 24 hours before the class; after that the fee is non-refundable.' },
         { h: 'Vouchers and complaints', p: 'Vouchers are valid for 3 months from purchase. Refunds and complaints are handled by the Wizards of Art studio.' },

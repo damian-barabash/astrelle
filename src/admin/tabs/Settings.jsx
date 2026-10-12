@@ -18,6 +18,7 @@ export default function Settings() {
   const [s, setS] = useState(null)
   const [studio, setStudio] = useState({})
   const [partner, setPartner] = useState({})
+  const [shop, setShop] = useState({})
   const [pw, setPw] = useState({ old: '', a: '', b: '' })
 
   useEffect(() => {
@@ -25,6 +26,7 @@ export default function Settings() {
       setS(x)
       setStudio(x.studio || {})
       setPartner(x.partner || {})
+      setShop(x.shop || {})
     })
   }, [token])
 
@@ -43,7 +45,7 @@ export default function Settings() {
 
   return (
     <div>
-      <div className="ahead"><div><h2>Настройки</h2><p>Контакты Astrelle, ссылки на студию-партнёра, пароль.</p></div></div>
+      <div className="ahead"><div><h2>Настройки</h2><p>Контакты Astrelle, ссылки на студию-партнёра, магазин, пароль.</p></div></div>
       <div className="set__grid">
         <div className="acard">
           <h4>Astrelle</h4>
@@ -64,6 +66,15 @@ export default function Settings() {
             <label className="af"><span className="af__lbl">Метка источника в ссылках (utm_source)</span><input value={partner.utm_source || ''} placeholder="astrelle" onChange={(e) => setPartner((x) => ({ ...x, utm_source: e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, '') }))} /></label>
             <p className="edt__hint">Цены и ссылки отдельных занятий — <Link to="/admin/partner/oferta">Партнёр → Предложения и цены</Link>. Комиссия и адрес для автоматических уведомлений — <Link to="/admin/partner/podlaczenie">Как узнаём о покупках</Link>. Адреса и телефон студии зашиты в сайт — скажи, если изменятся.</p>
             <button className="abtn" onClick={() => save('partner', partner)}>Сохранить</button>
+          </div>
+        </div>
+
+        <div className="acard">
+          <h4>Магазин (/sklep)</h4>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <label className="af"><span className="af__lbl">Надпись вместо «Otwarcie w październiku» (пусто = из словаря)</span><input value={shop.soon_text || ''} onChange={(e) => setShop((x) => ({ ...x, soon_text: e.target.value }))} placeholder="Otwarcie w październiku" /></label>
+            <p className="edt__hint">Магазин — наш собственный, пока «скоро открытие». Лист ожидания — во вкладке «Сообщения → Лист ожидания магазина».</p>
+            <button className="abtn" onClick={() => save('shop', shop)}>Сохранить</button>
           </div>
         </div>
 

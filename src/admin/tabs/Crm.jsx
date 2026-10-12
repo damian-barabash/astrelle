@@ -103,7 +103,7 @@ export default function Crm() {
   const norm = (s) => String(s || '').toLowerCase()
   const match = (...f) => !q || f.some((x) => norm(x).includes(norm(q)))
   const clients = useMemo(() => data.clients.filter((c) => match(c.name, c.contact, c.email, c.phone, (c.tags || []).join(' '), c.notes)), [data.clients, q]) // eslint-disable-line
-  const leads = useMemo(() => data.leads.filter((l) => (lf === 'all' ? true : l.status === lf)).filter((l) => match(l.name, l.contact, l.message)), [data.leads, lf, q]) // eslint-disable-line
+  const leads = useMemo(() => data.leads.filter((l) => (lf === 'all' ? true : lf === 'shop' ? l.kind === 'shop' : l.status === lf && l.kind !== 'shop')).filter((l) => match(l.name, l.contact, l.message)), [data.leads, lf, q]) // eslint-disable-line
   const leadsByClient = useMemo(() => {
     const m = {}
     for (const l of data.leads) if (l.client_id) (m[l.client_id] = m[l.client_id] || []).push(l)
@@ -138,7 +138,7 @@ export default function Crm() {
       <div className="ahead">
         <div>
           <h2>Сообщения и контакты</h2>
-          <p>Всё, что приходит через форму «Написать Стасе». Записи на занятия здесь нет — они у студии; переходы и покупки смотри во вкладке «Партнёр».</p>
+          <p>Всё, что приходит через форму «Написать Стасе», и лист ожидания нашего магазина. Записи на занятия здесь нет — они у студии; переходы и покупки смотри во вкладке «Партнёр».</p>
         </div>
         <div className="ahead__act">
           <input className="asearch" placeholder="Поиск: имя, телефон, e-mail, тег…" value={q} onChange={(e) => setQ(e.target.value)} />
@@ -148,7 +148,7 @@ export default function Crm() {
       </div>
       <div className="crm__tabs aseg">
         {SUB.map(([k, l]) => {
-          const n = k === 'leady' ? data.leads.filter((x) => x.status === 'new').length : 0
+          const n = k === 'leady' ? data.leads.filter((x) => x.status === 'new' && x.kind !== 'shop').length : 0
           return <button key={k} className={sub === k ? 'is-active' : ''} onClick={() => navigate(`/admin/klienci/${k}`)}>{l}{n ? ` · ${n}` : ''}</button>
         })}
       </div>
@@ -174,7 +174,7 @@ export default function Crm() {
       ) : (
         <>
           <div className="crm__filters aseg">
-            {[['new', 'Новые'], ['replied', 'Ответили'], ['closed', 'Закрытые'], ['all', 'Все']].map(([k, l]) => <button key={k} className={lf === k ? 'is-active' : ''} onClick={() => setLf(k)}>{l}</button>)}
+            {[['new', 'Новые'], ['replied', 'Ответили'], ['closed', 'Закрытые'], ['shop', 'Лист ожидания магазина'], ['all', 'Все']].map(([k, l]) => <button key={k} className={lf === k ? 'is-active' : ''} onClick={() => setLf(k)}>{l}</button>)}
           </div>
           <div className="crm__list">
             {leads.length === 0 ? <p className="aempty">Ничего нет.</p> : leads.map((l) => {

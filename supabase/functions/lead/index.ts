@@ -1,4 +1,4 @@
-// Public lead endpoint: the "write to Stasia" contact form.
+// Public lead endpoint: the "write to Stasia" contact form and the shop waiting list.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { CORS, json, rest, restJson, bg, upsertClient, normContact } from "../_shared/common.ts";
 

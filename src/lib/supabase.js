@@ -28,10 +28,10 @@ export function fetchGallery() {
   return get('gallery_media?select=id,kind,url,poster_url,width,height,sort&order=sort.asc,created_at.asc')
 }
 
-// Public site settings: block images, section layout, our contact details and the
-// partner block (promo code, per-offer price / link overrides).
+// Public site settings: block images, section layout, the shop note, our contact
+// details and the partner block (promo code, per-offer price / link overrides).
 export async function fetchSettings() {
-  const rows = await get('site_settings?id=eq.1&select=images,layout,studio,partner')
+  const rows = await get('site_settings?id=eq.1&select=images,layout,shop,studio,partner')
   return rows[0] || {}
 }
 

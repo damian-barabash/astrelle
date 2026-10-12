@@ -2576,9 +2576,6 @@ a.price__row:hover .price__l {
 }
 
 /* ---- shop shelf ---- */
-.shop {
-  min-height: 0;
-}
 .shelf {
   padding-top: 0;
 }
