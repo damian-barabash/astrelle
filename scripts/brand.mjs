@@ -35,9 +35,9 @@ const bg = Buffer.from(`
     </linearGradient>
   </defs>
   <rect width="${W}" height="${H}" fill="url(#g)"/>
-  <rect x="28" y="28" width="${W - 56}" height="${H - 56}" rx="28" fill="none" stroke="#84a867" stroke-opacity="0.35" stroke-width="2"/>
-  <text x="600" y="452" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="44" fill="#5f7e48">Ceramika · kursy · coworking</text>
-  <text x="600" y="520" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="26" letter-spacing="3" fill="#7a2e3a">WARSZAWA · MAŁA 5A · STUDIO AINO</text>
+  <rect x="28" y="28" width="${W - 56}" height="${H - 56}" rx="28" fill="none" stroke="#587642" stroke-opacity="0.35" stroke-width="2"/>
+  <text x="600" y="452" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="44" fill="#587642">Ceramika ze Stasią Kulik</text>
+  <text x="600" y="520" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="26" letter-spacing="3" fill="#587642">WARSZAWA · PRACOWNIA WIZARDS OF ART</text>
   <text x="600" y="566" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="22" letter-spacing="2" fill="#6d7560">astrelle.pl</text>
 </svg>`)
 

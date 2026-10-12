@@ -1,20 +1,36 @@
 import { useEffect, useState, createContext, useContext, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-
 // Small shared admin UI: statuses, modal, toast, formatting helpers.
-export const BOOKING_STATUS = {
-  pending: 'Новая заявка',
-  confirmed: 'Подтверждено',
-  waitlist: 'Лист ожидания',
-  attended: 'Пришёл(а)',
-  no_show: 'Не пришёл(а)',
-  declined: 'Отклонено',
-  cancelled: 'Отменено',
-}
-export const LEAD_STATUS = { new: 'Новый', replied: 'Ответили', closed: 'Закрыт' }
-export const LEAD_KIND = { contact: 'Вопрос', gift: 'Voucher', shop: 'Магазин (лист ожидания)' }
+import { BUNDLED } from '../i18n/index.jsx'
+import { OFFERS, VOUCHERS, PRODUCTS } from '../data/offers.js'
 
-export const Chip = ({ status, children }) => <span className={`achip achip--${status}`}>{children ?? BOOKING_STATUS[status] ?? LEAD_STATUS[status] ?? status}</span>
+export const LEAD_STATUS = { new: 'Новый', replied: 'Ответили', closed: 'Закрыт' }
+export const LEAD_KIND = { contact: 'Вопрос', gift: 'Сертификат (старое)', shop: 'Магазин (старое)' }
+export const SALE_STATUS = { new: 'Проверить', confirmed: 'Подтверждена', rejected: 'Не наша' }
+export const SALE_SOURCE = { manual: 'вручную', webhook: 'от студии', import: 'импорт' }
+
+export const Chip = ({ status, children }) => <span className={`achip achip--${status}`}>{children ?? SALE_STATUS[status] ?? LEAD_STATUS[status] ?? status}</span>
+
+// What a click led to, in the admin's language. Offers, vouchers and shop items are
+// named after the site's own copy; the rest are the studio's general pages.
+const TARGETS = {
+  schedule: 'Расписание студии', site: 'Сайт студии', shop: 'Магазин студии', vouchers: 'Сертификаты (страница)',
+  adults: 'Занятия для взрослых', kids: 'Занятия для детей', contact: 'Контакты студии', terms: 'Регламент студии',
+  instagram: 'Instagram студии', phone: 'Звонок в студию',
+}
+const RU = BUNDLED.ru
+export function offerLabel(id) {
+  if (!id) return '—'
+  return RU.offers?.items?.[id]?.t || RU.voucher?.items?.[id]?.t || RU.shop?.items?.[id] || TARGETS[id] || id
+}
+export const offerKind = (id) => (OFFERS.some((o) => o.id === id) ? 'Занятие' : VOUCHERS.some((o) => o.id === id) ? 'Сертификат' : PRODUCTS.some((o) => o.id === id) ? 'Магазин' : id === 'phone' ? 'Звонок' : 'Страница')
+export const PLACE_LABEL = {
+  topbar: 'шапка', drawer: 'мобильное меню', footer: 'подвал', hero: 'главная · hero', 'home-partner': 'главная · о студии', 'home-cta': 'главная · призыв',
+  'home-where': 'главная · адреса', offers: 'каталог', 'offers-bottom': 'каталог · низ', 'offer-page': 'страница занятия', 'offer-related': 'другие форматы',
+  'voucher-page': 'сертификаты', 'shop-top': 'магазин · верх', 'shop-grid': 'магазин · полка', 'shop-bottom': 'магазин · низ', contact: 'контакты',
+}
+export const placeLabel = (p) => (p ? PLACE_LABEL[p] || PLACE_LABEL[String(p).split(':')[0]] || p : '—')
+export const money = (n) => `${Number(n || 0).toLocaleString('ru', { maximumFractionDigits: 2 })} zł`
 
 const pad = (n) => String(n).padStart(2, '0')
 export const fmtDate = (iso, opts = {}) => (iso ? new Date(iso).toLocaleDateString('ru', { day: 'numeric', month: 'short', ...opts }) : '—')
@@ -113,7 +129,7 @@ export function toWebp(file, maxDim = 1600, quality = 0.85) {
   })
 }
 
-/* ---- site settings cache (studio info, message templates, event templates) ---- */
+/* ---- site settings cache (our contact details, the partner block) ---- */
 import { callFn as _callFn } from '../lib/supabase.js'
 let _settings = null
 let _settingsP = null

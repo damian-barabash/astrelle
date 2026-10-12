@@ -36,13 +36,9 @@ export async function audit(a: any, action: string, target: string | null, detai
   } catch (_) { /* logging must never break the request */ }
 }
 
-// run after the response is sent (never make the UI wait on iCloud etc.)
+// run after the response is sent (never make the UI wait on a log write)
 export function bg(p: Promise<unknown>) {
   try { (globalThis as any).EdgeRuntime?.waitUntil ? (globalThis as any).EdgeRuntime.waitUntil(p) : void p; } catch { void p; }
-}
-
-export async function caldav(action: string, payload: Record<string, unknown>) {
-  try { await fetch(`${SUPA}/functions/v1/caldav-sync`, { method: "POST", headers: H, body: JSON.stringify({ token: SERVICE, action, ...payload }) }); } catch (_) {}
 }
 
 // e-mail → lowercase; phone → digits only. Same rule as the SQL norm_contact().

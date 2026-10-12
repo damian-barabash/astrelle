@@ -1,47 +1,43 @@
-import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { callFn } from '../../lib/supabase.js'
 import { useAdmin } from '../auth.jsx'
-import { BookingRow } from './Crm.jsx'
-import { fmtTime, dayKey } from '../ui.jsx'
+import { fmtDT, offerLabel, placeLabel, money, dayKey, Chip, SALE_STATUS } from '../ui.jsx'
 
-// "Today": what needs an answer, what happens today, the week ahead.
+// "Today": how many people the site sent to the studio, what they went for, which
+// purchases are known, and the messages waiting for an answer.
 export default function Dashboard() {
   const { token, admin } = useAdmin()
-  const [crm, setCrm] = useState({ clients: [], bookings: [], leads: [] })
-  const [cal, setCal] = useState({ events: [] })
+  const [p, setP] = useState(null)
+  const [crm, setCrm] = useState({ clients: [], leads: [] })
   const [settings, setSettings] = useState({})
-  const [loading, setLoading] = useState(true)
 
   const load = useCallback(() => {
     Promise.all([
+      callFn('admin-partner', { action: 'overview', token, days: 30 }),
       callFn('admin-crm', { action: 'overview', token }),
-      callFn('admin-calendar', { action: 'overview', token, from: new Date(Date.now() - 864e5).toISOString(), to: new Date(Date.now() + 14 * 864e5).toISOString() }),
       callFn('admin-content', { action: 'settings.get', token }),
-    ]).then(([c, k, s]) => {
+    ]).then(([a, c, s]) => {
+      setP(a.ok ? a.data : { summary: null, clicks: [], sales: [] })
       if (c.ok) setCrm(c.data)
-      if (k.ok) setCal(k.data)
       if (s.ok) setSettings(s.data.settings || {})
-      setLoading(false)
     })
   }, [token])
   useEffect(() => { load() }, [load])
 
-  const evById = useMemo(() => Object.fromEntries((cal.events || []).map((e) => [e.id, e])), [cal.events])
-  const pending = crm.bookings.filter((b) => b.status === 'pending')
-  const waitlist = crm.bookings.filter((b) => b.status === 'waitlist')
-  const newLeads = crm.leads.filter((l) => l.status === 'new')
   const now = new Date()
-  const today = dayKey(now)
-  const todayEvents = (cal.events || []).filter((e) => dayKey(new Date(e.starts_at)) === today)
-  const week = (cal.events || []).filter((e) => new Date(e.starts_at) > now && new Date(e.starts_at) < new Date(Date.now() + 7 * 864e5))
-  const weekSeats = week.reduce((s, e) => s + e.capacity, 0)
-  const weekBooked = week.reduce((s, e) => s + crm.bookings.filter((b) => b.event_id === e.id && ['confirmed', 'attended'].includes(b.status)).reduce((x, b) => x + b.people, 0), 0)
-  const stale = pending.filter((b) => Date.now() - new Date(b.created_at) > 24 * 3600e3)
-  const missingEmail = !settings.studio?.email
-
   const hour = now.getHours()
   const hi = hour < 12 ? 'Доброе утро' : hour < 18 ? 'Добрый день' : 'Добрый вечер'
+  const clicks = p?.clicks || []
+  const sales = p?.sales || []
+  const s = p?.summary
+  const today = dayKey(now)
+  const todayClicks = clicks.filter((c) => dayKey(new Date(c.created_at)) === today).length
+  const weekClicks = clicks.filter((c) => Date.now() - new Date(c.created_at) < 7 * 864e5).length
+  const newLeads = (crm.leads || []).filter((l) => l.status === 'new')
+  const pending = sales.filter((x) => x.status === 'new')
+  const noCode = !settings.partner?.promo_code
+  const noEmail = !settings.studio?.email
 
   return (
     <div className="dash">
@@ -51,49 +47,66 @@ export default function Dashboard() {
           <p>{now.toLocaleDateString('ru', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
         </div>
         <div className="ahead__act">
-          <Link className="abtn" to="/admin/kalendarz?add=1">+ Добавить занятие</Link>
-          <Link className="abtn abtn--ghost" to="/admin/klienci">CRM</Link>
+          <Link className="abtn" to="/admin/partner/sprzedaz">+ Записать покупку</Link>
+          <Link className="abtn abtn--ghost" to="/admin/partner">Все переходы</Link>
         </div>
       </div>
 
-      {stale.length > 0 && (
-        <div className="dash__todo">
-          ⏰ {stale.length} {stale.length === 1 ? 'заявка ждёт ответа' : 'заявки ждут ответа'} больше 24 ч — <Link to="/admin/klienci">ответить</Link>
-        </div>
+      {pending.length > 0 && (
+        <div className="dash__todo">◎ {pending.length} {pending.length === 1 ? 'покупка пришла' : 'покупок пришло'} от студии без нашего кода — <Link to="/admin/partner/sprzedaz">проверить</Link></div>
       )}
-      {missingEmail && (
-        <div className="dash__todo">
-          ✎ В политике конфиденциальности пусто поле e-mail — <Link to="/admin/ustawienia">заполнить данные студии</Link>
-        </div>
+      {noCode && (
+        <div className="dash__todo">✦ Промокод Astrelle не задан: без него покупку в студии нельзя надёжно связать с нами — <Link to="/admin/partner/podlaczenie">как это настроить</Link></div>
+      )}
+      {noEmail && (
+        <div className="dash__todo">✎ В документах сайта пусто поле e-mail — <Link to="/admin/ustawienia">заполнить контакты Astrelle</Link></div>
       )}
 
       <div className="dash__stats">
-        <Link className={`dash__stat ${pending.length ? 'is-hot' : ''}`} to="/admin/klienci"><b>{pending.length}</b><span>новых заявок</span></Link>
+        <Link className="dash__stat" to="/admin/partner/przejscia"><b>{todayClicks}</b><span>переходов в студию сегодня</span></Link>
+        <Link className="dash__stat" to="/admin/partner/przejscia"><b>{weekClicks}</b><span>за 7 дней</span></Link>
+        <Link className="dash__stat" to="/admin/partner"><b>{s?.clicks ?? 0}</b><span>за 30 дней</span></Link>
+        <Link className={`dash__stat ${s?.sales ? 'is-hot' : ''}`} to="/admin/partner/sprzedaz"><b>{s?.sales ?? 0}</b><span>покупок за 30 дней</span></Link>
+        <Link className="dash__stat" to="/admin/partner/sprzedaz"><b>{money(s?.commission)}</b><span>комиссия за 30 дней</span></Link>
         <Link className={`dash__stat ${newLeads.length ? 'is-hot' : ''}`} to="/admin/klienci/leady"><b>{newLeads.length}</b><span>новых сообщений</span></Link>
-        <Link className="dash__stat" to="/admin/kalendarz"><b>{todayEvents.length}</b><span>занятий сегодня</span></Link>
-        <div className="dash__stat"><b>{weekBooked}/{weekSeats}</b><span>мест занято на 7 дней</span></div>
-        <div className="dash__stat"><b>{waitlist.length}</b><span>в листе ожидания</span></div>
-        <Link className="dash__stat" to="/admin/klienci/klienci"><b>{crm.clients.length}</b><span>клиентов в базе</span></Link>
       </div>
 
       <div className="dash__grid">
         <div className="acard">
-          <h4>Ждут ответа</h4>
-          {loading ? <p className="aempty">Загрузка…</p> : pending.length === 0 ? <p className="aempty">Все заявки обработаны ✓</p> : (
+          <h4>Последние переходы в студию</h4>
+          {!p ? <p className="aempty">Загрузка…</p> : clicks.length === 0 ? <p className="aempty">Пока никто не уходил записываться. Переходы появятся здесь сами.</p> : (
             <div className="crm__rows">
-              {pending.slice(0, 8).map((b) => <BookingRow key={b.id} b={b} ev={evById[b.event_id] || b.event} onChange={load} />)}
-              {pending.length > 8 && <p className="aempty"><Link to="/admin/klienci">ещё {pending.length - 8} →</Link></p>}
+              {clicks.slice(0, 10).map((c) => (
+                <div className="bk" key={c.id}>
+                  <div className="bk__main">
+                    <span className="bk__name">{offerLabel(c.offer)} <code className="pt__ref">{c.ref}</code></span>
+                    <span className="bk__meta"><span>{fmtDT(c.created_at)}</span><span>· {placeLabel(c.place)}</span>{c.lang ? <span>· {c.lang.toUpperCase()}</span> : null}{c.device ? <span>· {c.device}</span> : null}</span>
+                  </div>
+                </div>
+              ))}
+              {clicks.length > 10 && <p className="aempty"><Link to="/admin/partner/przejscia">все переходы →</Link></p>}
             </div>
           )}
         </div>
         <div>
           <div className="acard" style={{ marginBottom: 14 }}>
-            <h4>Сегодня</h4>
-            {todayEvents.length === 0 ? <p className="aempty">Занятий нет.</p> : todayEvents.map((e) => <EventLine key={e.id} e={e} bookings={crm.bookings} />)}
+            <h4>Что выбирают · 30 дней</h4>
+            {!s || s.by_offer.length === 0 ? <p className="aempty">Нет данных.</p> : s.by_offer.slice(0, 7).map((r) => (
+              <div className="bk" key={r.k || 'none'}>
+                <div className="bk__main"><span className="bk__name">{offerLabel(r.k)}</span><span className="bk__meta">{r.clicks} переходов{r.sales ? ` · ${r.sales} покупок · ${money(r.revenue)}` : ''}</span></div>
+              </div>
+            ))}
           </div>
           <div className="acard">
-            <h4>Ближайшие 7 дней</h4>
-            {week.length === 0 ? <p className="aempty">Пусто — <Link to="/admin/kalendarz">добавь окна</Link>.</p> : week.slice(0, 10).map((e) => <EventLine key={e.id} e={e} bookings={crm.bookings} withDate />)}
+            <h4>Последние покупки</h4>
+            {sales.length === 0 ? <p className="aempty">Пока не записано ни одной.</p> : sales.slice(0, 5).map((x) => (
+              <div className="bk" key={x.id}>
+                <div className="bk__main">
+                  <span className="bk__name">{x.offer ? offerLabel(x.offer) : x.title || 'Покупка'} <Chip status={x.status === 'new' ? 'pending' : x.status === 'rejected' ? 'declined' : 'confirmed'}>{SALE_STATUS[x.status]}</Chip></span>
+                  <span className="bk__meta">{x.sold_at} · {money(x.amount)}{x.customer ? ` · ${x.customer}` : ''}</span>
+                </div>
+              </div>
+            ))}
           </div>
           {newLeads.length > 0 && (
             <div className="acard" style={{ marginTop: 14 }}>
@@ -101,7 +114,7 @@ export default function Dashboard() {
               {newLeads.slice(0, 5).map((l) => (
                 <div className="bk" key={l.id}>
                   <div className="bk__main">
-                    <span className="bk__name">{l.name || '—'} <span className="achip">{l.kind}</span></span>
+                    <span className="bk__name">{l.name || '—'}</span>
                     <span className="bk__meta">{l.contact}{l.message ? ` · «${l.message.slice(0, 80)}»` : ''}</span>
                   </div>
                 </div>
@@ -111,24 +124,6 @@ export default function Dashboard() {
           )}
         </div>
       </div>
-    </div>
-  )
-}
-
-function EventLine({ e, bookings, withDate }) {
-  const booked = bookings.filter((b) => b.event_id === e.id && ['confirmed', 'attended'].includes(b.status)).reduce((s, b) => s + b.people, 0)
-  const pend = bookings.filter((b) => b.event_id === e.id && b.status === 'pending').length
-  const d = new Date(e.starts_at)
-  return (
-    <div className="bk">
-      <div className="bk__main">
-        <span className="bk__name">
-          {withDate ? `${d.toLocaleDateString('ru', { weekday: 'short', day: 'numeric', month: 'short' })} · ` : ''}{fmtTime(e.starts_at)} — {e.title || (e.type === 'coworking' ? 'Коворкинг' : 'Мастер-класс')}
-          {!e.published && <span className="achip">черновик</span>}
-        </span>
-        <span className="bk__meta">{booked}/{e.capacity} мест{pend ? ` · ${pend} ждут ответа` : ''}{e.price ? ` · ${e.price}` : ''}</span>
-      </div>
-      <Link className="abtn abtn--ghost abtn--sm" to={`/admin/kalendarz?day=${dayKey(d)}`}>открыть</Link>
     </div>
   )
 }

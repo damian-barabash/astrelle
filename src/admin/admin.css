@@ -1557,3 +1557,65 @@
     gap: 2px;
   }
 }
+
+/* ---- partner tab ---- */
+.pt__ref {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: var(--a-bg2);
+}
+.pt__act {
+  white-space: nowrap;
+  text-align: right;
+}
+.pt__act > * {
+  display: inline-grid;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+.pt__note {
+  font-size: 12px;
+  color: var(--a-mute);
+  margin-top: 2px;
+}
+.pt__p {
+  font-size: 13.5px;
+  line-height: 1.55;
+  margin-bottom: 10px;
+}
+.pt__url {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  word-break: break-all;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--a-bg2);
+}
+.pt__offers input:not([type='checkbox']) {
+  width: 100%;
+  min-width: 90px;
+  border: 1px solid var(--a-line2);
+  border-radius: 8px;
+  padding: 7px 9px;
+  background: var(--a-bg);
+  font-size: 13px;
+}
+.pt__offers td:nth-child(3) input {
+  min-width: 260px;
+}
+.atable tr.is-off td {
+  opacity: 0.5;
+}
+.edt__pick {
+  width: 100%;
+  border: 1px solid var(--a-line2);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: var(--a-bg);
+  font-size: 13px;
+  margin-bottom: 6px;
+}

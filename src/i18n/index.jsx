@@ -9,6 +9,11 @@ import { fetchContent, fetchSettings } from '../lib/supabase.js'
 // merge it on top, so admin edits are the live source of truth.
 // The admin's visual editor mounts the same provider with `override` (its draft).
 export const BUNDLED = { ru, pl, en }
+// The copy was rewritten when Astrelle moved to the partner studio (2026-10). Docs saved
+// before that carry the old site's texts under the same keys, so only docs stamped with
+// the current revision are merged; the editor stamps a doc when it publishes.
+export const DOC_REV = 2
+export const liveDoc = (lang, doc) => (doc && doc.__v === DOC_REV ? deepMerge(BUNDLED[lang], doc) : BUNDLED[lang])
 export const LANGS = [
   { code: 'pl', label: 'PL' },
   { code: 'ru', label: 'RU' },
@@ -43,15 +48,17 @@ function detectLang() {
   }
 }
 
+// Astrelle's own contact details (footer, documents). The address is the partner
+// studio where the classes take place.
 export const DEFAULT_STUDIO = {
   company: 'Astrelle',
-  address: 'ul. Mała 5a, Warszawa',
+  address: 'pracownia Wizards of Art, ul. Żurawia 32/34 lok. 26, Warszawa',
   email: '',
   phone: '',
   instagram: '',
-  maps: 'https://maps.google.com/?q=Ma%C5%82a+5a,+Warszawa',
-  hours: '',
 }
+// What the admin can change about the links to the partner studio.
+export const DEFAULT_PARTNER = { promo_code: '', utm_source: 'astrelle', offers: {} }
 
 export function LangProvider({ children, override }) {
   const [lang, setLangState] = useState(() => {
@@ -59,7 +66,7 @@ export function LangProvider({ children, override }) {
     return saved && BUNDLED[saved] ? saved : detectLang()
   })
   const [dicts, setDicts] = useState(BUNDLED)
-  const [settings, setSettings] = useState({ images: {}, layout: {}, shop: {}, studio: {} })
+  const [settings, setSettings] = useState({ images: {}, layout: {}, studio: {}, partner: {} })
 
   useEffect(() => {
     if (override) return
@@ -73,11 +80,11 @@ export function LangProvider({ children, override }) {
     fetchContent()
       .then((db) => {
         if (!alive) return
-        setDicts({ ru: deepMerge(BUNDLED.ru, db.ru), pl: deepMerge(BUNDLED.pl, db.pl), en: deepMerge(BUNDLED.en, db.en) })
+        setDicts({ ru: liveDoc('ru', db.ru), pl: liveDoc('pl', db.pl), en: liveDoc('en', db.en) })
       })
       .catch(() => { /* keep bundled fallback — the site stays fully functional */ })
     fetchSettings()
-      .then((s) => alive && setSettings({ images: s.images || {}, layout: s.layout || {}, shop: s.shop || {}, studio: s.studio || {} }))
+      .then((s) => alive && setSettings({ images: s.images || {}, layout: s.layout || {}, studio: s.studio || {}, partner: s.partner || {} }))
       .catch(() => {})
     return () => {
       alive = false
@@ -88,8 +95,13 @@ export function LangProvider({ children, override }) {
   const curDicts = override?.dicts || dicts
   const images = override?.images || settings.images
   const layout = override?.layout || settings.layout
-  const studio = useMemo(() => ({ ...DEFAULT_STUDIO, ...(override?.studio || settings.studio || {}) }), [override, settings.studio])
-  const shop = override?.shop || settings.shop
+  // empty fields in the saved settings fall back to the defaults
+  const studio = useMemo(() => {
+    const out = { ...DEFAULT_STUDIO }
+    for (const [k, v] of Object.entries(override?.studio || settings.studio || {})) if (v) out[k] = v
+    return out
+  }, [override, settings.studio])
+  const partner = useMemo(() => ({ ...DEFAULT_PARTNER, ...(override?.partner || settings.partner || {}) }), [override, settings.partner])
 
   const setLang = useCallback((l) => (override?.setLang ? override.setLang(l) : setLangState(l)), [override])
 
@@ -105,8 +117,8 @@ export function LangProvider({ children, override }) {
   const img = useCallback((key, fallback) => images?.[key] || fallback, [images])
 
   const value = useMemo(
-    () => ({ lang: curLang, setLang, t, img, images, layout, studio, shop, dicts: curDicts }),
-    [curLang, setLang, t, img, images, layout, studio, shop, curDicts]
+    () => ({ lang: curLang, setLang, t, img, images, layout, studio, partner, dicts: curDicts }),
+    [curLang, setLang, t, img, images, layout, studio, partner, curDicts]
   )
   return <LangCtx.Provider value={value}>{children}</LangCtx.Provider>
 }

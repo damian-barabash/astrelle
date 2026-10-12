@@ -6,13 +6,15 @@ const ACTIONS = {
   login: 'Вход в панель', 'password.change': 'Смена пароля',
   'content.update': 'Правка сайта', 'images.set': 'Фото блока', 'settings.set': 'Настройки',
   'gallery.add': 'Фото / видео добавлено', 'gallery.delete': 'Медиа удалено', 'gallery.reorder': 'Порядок медиа',
-  'event.save': 'Занятие сохранено', 'event.delete': 'Занятие удалено', 'events.create_many': 'Занятия созданы', 'slots.create': 'Окна созданы',
-  'booking.create': 'Новая заявка', 'booking.status': 'Статус заявки', 'booking.delete': 'Заявка удалена',
+  'sale.create': 'Покупка записана', 'sale.update': 'Покупка изменена', 'sale.delete': 'Покупка удалена', 'sale.webhook': 'Покупка от студии',
+  'click.delete': 'Переход удалён', 'partner.settings': 'Комиссия / адрес уведомлений', 'partner.export': 'Экспорт переходов / покупок',
   'lead.create': 'Новое сообщение', 'lead.update': 'Сообщение обновлено', 'lead.delete': 'Сообщение удалено',
-  'client.update': 'Клиент обновлён', 'client.create': 'Клиент добавлен', 'client.delete': 'Клиент удалён', 'crm.export': 'Экспорт CSV',
-  'integration.save': 'Настройки календаря',
+  'client.update': 'Контакт обновлён', 'client.create': 'Контакт добавлен', 'client.delete': 'Контакт удалён', 'crm.export': 'Экспорт CSV',
+  // до октября 2026 сайт сам принимал записи
+  'event.save': 'Занятие сохранено', 'event.delete': 'Занятие удалено', 'events.create_many': 'Занятия созданы', 'slots.create': 'Окна созданы',
+  'booking.create': 'Заявка (старое)', 'booking.status': 'Статус заявки (старое)', 'booking.delete': 'Заявка удалена (старое)',
 }
-const FILTERS = [['all', 'Все'], ['booking.create', 'Заявки'], ['booking.status', 'Статусы'], ['lead.create', 'Сообщения'], ['event.save', 'Занятия'], ['content.update', 'Правки сайта'], ['login', 'Входы']]
+const FILTERS = [['all', 'Все'], ['sale.create', 'Покупки'], ['sale.webhook', 'От студии'], ['lead.create', 'Сообщения'], ['content.update', 'Правки сайта'], ['settings.set', 'Настройки'], ['login', 'Входы']]
 
 export default function LogsView() {
   const { token } = useAdmin()

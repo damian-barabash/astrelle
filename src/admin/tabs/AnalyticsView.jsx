@@ -49,7 +49,7 @@ export default function AnalyticsView() {
   return (
     <div>
       <div className="ahead">
-        <div><h2>Аналитика</h2><p>Анонимная статистика сайта (только с согласия посетителя) и воронка записи.</p></div>
+        <div><h2>Аналитика</h2><p>Анонимная статистика сайта (только с согласия посетителя) и путь до студии.</p></div>
         <div className="aseg">{PERIODS.map(([v, l]) => <button key={v} className={days === v ? 'is-active' : ''} onClick={() => setDays(v)}>{l}</button>)}</div>
       </div>
       {loading ? <p className="aempty">Загрузка…</p> : !s ? <p className="aempty">Нет данных.</p> : (
@@ -65,14 +65,13 @@ export default function AnalyticsView() {
               <h4>Воронка за период</h4>
               <div className="funnel">
                 <div className="funnel__step"><b>{f.visits}</b><span>визитов</span></div>
-                <div className="funnel__step"><b>{f.calendar_views}</b><span>открыли календарь</span><i>{pct(f.calendar_views, f.visits)}%</i></div>
-                <div className="funnel__step"><b>{f.bookings}</b><span>заявок</span><i>{pct(f.bookings, f.calendar_views)}% от календаря</i></div>
-                <div className="funnel__step"><b>{f.confirmed}</b><span>подтверждено</span><i>{pct(f.confirmed, f.bookings)}%</i></div>
+                <div className="funnel__step"><b>{f.offer_views}</b><span>смотрели занятия, сертификаты, магазин</span><i>{pct(f.offer_views, f.visits)}%</i></div>
+                <div className="funnel__step"><b>{f.clicks}</b><span>переходов в студию</span><i>{f.click_visits} из посчитанных визитов</i></div>
+                <div className="funnel__step"><b>{f.sales}</b><span>покупок</span><i>{pct(f.sales, f.clicks)}% от переходов</i></div>
+                <div className="funnel__step"><b>{Number(f.revenue || 0).toLocaleString('ru')} zł</b><span>оборот у студии</span></div>
                 <div className="funnel__step"><b>{f.leads}</b><span>сообщений</span></div>
-                <div className="funnel__step"><b>{f.new_clients}</b><span>новых клиентов</span><i>всего {f.clients}</i></div>
-                <div className="funnel__step"><b>{f.shop_list}</b><span>в листе магазина</span></div>
               </div>
-              <p className="edt__hint" style={{ marginTop: 8 }}>Визиты считаются только у тех, кто согласился на статистику; заявки и клиенты — все.</p>
+              <p className="edt__hint" style={{ marginTop: 8 }}>Визиты считаются только у тех, кто согласился на статистику; переходы в студию — все. Покупки — те, что записаны во вкладке «Партнёр».</p>
             </div>
           )}
           <div className="acard"><h4>Просмотры по дням</h4><Bars data={s.daily} /></div>

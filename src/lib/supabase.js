@@ -28,22 +28,11 @@ export function fetchGallery() {
   return get('gallery_media?select=id,kind,url,poster_url,width,height,sort&order=sort.asc,created_at.asc')
 }
 
-// Public site settings: block images, section layout, shop status, studio info.
+// Public site settings: block images, section layout, our contact details and the
+// partner block (promo code, per-offer price / link overrides).
 export async function fetchSettings() {
-  const rows = await get('site_settings?id=eq.1&select=images,layout,shop,studio')
+  const rows = await get('site_settings?id=eq.1&select=images,layout,studio,partner')
   return rows[0] || {}
-}
-
-// Published events in a range (+ confirmed seats) — the public calendar.
-export async function listEvents(fromISO, toISO) {
-  const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/list_events`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({ p_from: fromISO, p_to: toISO }),
-  })
-  if (!r.ok) throw new Error('events fetch failed: ' + r.status)
-  const rows = await r.json()
-  return Array.isArray(rows) ? rows : []
 }
 
 // Call an Edge Function. Returns { ok, status, data }.

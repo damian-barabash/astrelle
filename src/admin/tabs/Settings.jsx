@@ -1,18 +1,15 @@
 import { useEffect, useState } from 'react'
-import { callFn, SUPABASE_URL } from '../../lib/supabase.js'
+import { Link } from 'react-router-dom'
+import { callFn } from '../../lib/supabase.js'
 import { useAdmin } from '../auth.jsx'
 import { useToast, loadSettings, patchSettingsCache } from '../ui.jsx'
-import { EventIcon, ICON_KEYS } from '../../components/icons.jsx'
-import { MESSAGE_KEYS, DEFAULT_MESSAGES } from '../messages.js'
-import { DEFAULT_TEMPLATES } from './CalendarAdmin.jsx'
+import { PARTNER, PLACES } from '../../data/offers.js'
 
 const STUDIO_FIELDS = [
-  ['company', 'Название фирмы (для документов)', 'Astrelle / NIP …'],
-  ['address', 'Адрес', 'ul. Mała 5a, Warszawa'],
-  ['email', 'E-mail (в подвале и политике)', 'hello@astrelle.pl'],
-  ['phone', 'Телефон (в подвале)', '+48 …'],
-  ['instagram', 'Instagram (ссылка или @имя)', '@astrelle'],
-  ['maps', 'Ссылка Google Maps', 'https://maps.google.com/…'],
+  ['company', 'Название / фирма (для документов)', 'Astrelle · NIP …'],
+  ['email', 'E-mail Astrelle (подвал, контакты, документы)', 'hello@astrelle.pl'],
+  ['instagram', 'Instagram Astrelle (ссылка или @имя)', '@astrelle'],
+  ['address', 'Где проходят занятия (для документов)', 'pracownia Wizards of Art, ul. Żurawia 32/34 lok. 26, Warszawa'],
 ]
 
 export default function Settings() {
@@ -20,19 +17,14 @@ export default function Settings() {
   const toast = useToast()
   const [s, setS] = useState(null)
   const [studio, setStudio] = useState({})
-  const [shop, setShop] = useState({})
-  const [templates, setTemplates] = useState([])
-  const [messages, setMessages] = useState({})
-  const [mlang, setMlang] = useState('pl')
+  const [partner, setPartner] = useState({})
   const [pw, setPw] = useState({ old: '', a: '', b: '' })
 
   useEffect(() => {
     loadSettings(token, true).then((x) => {
       setS(x)
       setStudio(x.studio || {})
-      setShop(x.shop || {})
-      setTemplates(Array.isArray(x.templates) && x.templates.length ? x.templates : DEFAULT_TEMPLATES)
-      setMessages(x.messages || {})
+      setPartner(x.partner || {})
     })
   }, [token])
 
@@ -46,77 +38,33 @@ export default function Settings() {
     const r = await callFn('admin-auth', { action: 'password', token, old_password: pw.old, new_password: pw.a })
     if (r.ok) { toast('Пароль изменён'); setPw({ old: '', a: '', b: '' }) } else toast(r.data?.error === 'wrong_password' ? 'Старый пароль неверный' : r.data?.error === 'too_short' ? 'Минимум 8 символов' : 'Ошибка')
   }
-  const msg = { ...DEFAULT_MESSAGES[mlang], ...(messages[mlang] || {}) }
-  const setMsg = (k, v) => setMessages((m) => ({ ...m, [mlang]: { ...(m[mlang] || {}), [k]: v } }))
-  const setTpl = (i, k, v) => setTemplates((t) => t.map((x, j) => (j === i ? { ...x, [k]: v } : x)))
 
   if (!s) return <p className="aempty">Загрузка…</p>
-  const feed = `${SUPABASE_URL}/functions/v1/calendar-feed`
 
   return (
     <div>
-      <div className="ahead"><div><h2>Настройки</h2><p>Данные студии, шаблоны занятий и сообщений, магазин, пароль.</p></div></div>
+      <div className="ahead"><div><h2>Настройки</h2><p>Контакты Astrelle, ссылки на студию-партнёра, пароль.</p></div></div>
       <div className="set__grid">
         <div className="acard">
-          <h4>Студия</h4>
+          <h4>Astrelle</h4>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {STUDIO_FIELDS.map(([k, l, ph]) => (
               <label className="af" key={k}><span className="af__lbl">{l}</span><input value={studio[k] || ''} placeholder={ph} onChange={(e) => setStudio((x) => ({ ...x, [k]: e.target.value }))} /></label>
             ))}
-            <p className="edt__hint">Эти значения подставляются в подвал сайта и в {'{company} {address} {email}'} в документах.</p>
+            <p className="edt__hint">Подставляется в подвал, на страницу «Контакты» и в {'{company} {address} {email}'} в документах. Телефон на сайте — студии (записывает она).</p>
             <button className="abtn" onClick={() => save('studio', studio)}>Сохранить</button>
           </div>
         </div>
 
         <div className="acard">
-          <h4>Магазин (/sklep)</h4>
+          <h4>Студия-партнёр</h4>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <label className="af"><span className="af__lbl">Надпись вместо «Otwarcie w październiku» (пусто = из словаря)</span><input value={shop.soon_text || ''} onChange={(e) => setShop((x) => ({ ...x, soon_text: e.target.value }))} placeholder="Otwarcie w październiku" /></label>
-            <p className="edt__hint">Лист ожидания магазина — во вкладке CRM → «Сообщения и листы».</p>
-            <button className="abtn" onClick={() => save('shop', shop)}>Сохранить</button>
+            <p className="pt__p"><b>{PARTNER.name}</b> · {PARTNER.phone}<br />{PLACES.zurawia.street}<br />{PLACES.wiolinowa.street}</p>
+            <label className="af"><span className="af__lbl">Промокод на сайте (пусто = не показывать)</span><input value={partner.promo_code || ''} placeholder="ASTRELLE" onChange={(e) => setPartner((x) => ({ ...x, promo_code: e.target.value.toUpperCase() }))} /></label>
+            <label className="af"><span className="af__lbl">Метка источника в ссылках (utm_source)</span><input value={partner.utm_source || ''} placeholder="astrelle" onChange={(e) => setPartner((x) => ({ ...x, utm_source: e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, '') }))} /></label>
+            <p className="edt__hint">Цены и ссылки отдельных занятий — <Link to="/admin/partner/oferta">Партнёр → Предложения и цены</Link>. Комиссия и адрес для автоматических уведомлений — <Link to="/admin/partner/podlaczenie">Как узнаём о покупках</Link>. Адреса и телефон студии зашиты в сайт — скажи, если изменятся.</p>
+            <button className="abtn" onClick={() => save('partner', partner)}>Сохранить</button>
           </div>
-          <h4 style={{ marginTop: 22 }}>Подписка на календарь</h4>
-          <p className="edt__hint">Apple / Google Calendar → «подписаться по URL»:</p>
-          <div className="msgbox__links" style={{ marginTop: 6 }}>
-            <button className="abtn abtn--ghost abtn--sm" onClick={() => { navigator.clipboard.writeText(feed.replace('https://', 'webcal://')); toast('Скопировано') }}>Скопировать webcal://</button>
-            <a className="abtn abtn--ghost abtn--sm" href={feed} target="_blank" rel="noreferrer">Открыть .ics</a>
-          </div>
-        </div>
-
-        <div className="acard" style={{ gridColumn: '1 / -1' }}>
-          <h4>Шаблоны занятий (кнопки в календаре)</h4>
-          <div className="tpl" style={{ borderTop: 'none', fontSize: 11, color: 'var(--a-mute)', textTransform: 'uppercase', letterSpacing: '.08em' }}><span>Кнопка · название на сайте</span><span>Тип</span><span>Минут</span><span>Мест</span><span>Цена</span><span /></div>
-          {templates.map((t, i) => (
-            <div className="tpl" key={i}>
-              <div style={{ display: 'grid', gap: 4 }}>
-                <input value={t.name} placeholder="Кнопка" onChange={(e) => setTpl(i, 'name', e.target.value)} />
-                <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                  <input value={t.title || ''} placeholder="Название на сайте" onChange={(e) => setTpl(i, 'title', e.target.value)} />
-                  <select value={t.icon || 'mug'} onChange={(e) => setTpl(i, 'icon', e.target.value)} style={{ width: 90 }}>{ICON_KEYS.map((k) => <option key={k} value={k}>{k}</option>)}</select>
-                  <span className="cev__ic" style={{ width: 28, height: 28 }}><EventIcon icon={t.icon || 'mug'} /></span>
-                </div>
-              </div>
-              <select value={t.type} onChange={(e) => setTpl(i, 'type', e.target.value)}><option value="class">МК</option><option value="coworking">Коворкинг</option></select>
-              <input type="number" value={t.duration || 120} onChange={(e) => setTpl(i, 'duration', +e.target.value || 60)} />
-              <input type="number" value={t.capacity || 6} onChange={(e) => setTpl(i, 'capacity', +e.target.value || 1)} />
-              <input value={t.price || ''} onChange={(e) => setTpl(i, 'price', e.target.value)} />
-              <button className="bk__ico bk__ico--no" onClick={() => setTemplates((x) => x.filter((_, j) => j !== i))}>✕</button>
-            </div>
-          ))}
-          <div className="amodal__act" style={{ justifyContent: 'space-between' }}>
-            <button className="aadd" onClick={() => setTemplates((x) => [...x, { name: 'Новый', type: 'class', title: '', icon: 'mug', duration: 120, capacity: 6, price: '' }])}>+ шаблон</button>
-            <button className="abtn" onClick={() => save('templates', templates)}>Сохранить шаблоны</button>
-          </div>
-        </div>
-
-        <div className="acard" style={{ gridColumn: '1 / -1' }}>
-          <h4>Шаблоны сообщений клиентам</h4>
-          <p className="edt__hint">Кнопка ✉ у заявки подставляет данные и открывает WhatsApp / SMS / e-mail. Плейсхолдеры: {'{name} {date} {time} {title} {price} {address} {seats}'}.</p>
-          <div className="aseg" style={{ margin: '10px 0' }}>{['pl', 'ru', 'en'].map((l) => <button key={l} className={mlang === l ? 'is-active' : ''} onClick={() => setMlang(l)}>{l.toUpperCase()}</button>)}</div>
-          <div style={{ display: 'grid', gap: 10 }}>
-            {MESSAGE_KEYS.map(([k, l]) => <label className="af" key={k}><span className="af__lbl">{l}</span><textarea rows={2} value={msg[k] || ''} onChange={(e) => setMsg(k, e.target.value)} /></label>)}
-          </div>
-          <div className="amodal__act"><button className="abtn" onClick={() => save('messages', messages)}>Сохранить сообщения</button></div>
         </div>
 
         <div className="acard">

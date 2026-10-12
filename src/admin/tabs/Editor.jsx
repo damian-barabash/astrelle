@@ -2,28 +2,36 @@ import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { fetchContent, callFn } from '../../lib/supabase.js'
 import { useAdmin } from '../auth.jsx'
-import { LangProvider, BUNDLED, deepMerge, pick } from '../../i18n/index.jsx'
+import { LangProvider, liveDoc, pick } from '../../i18n/index.jsx'
 import { EditCtx } from '../../content/edit.jsx'
 import { Modal, useToast, toWebp, loadSettings, patchSettingsCache } from '../ui.jsx'
 import Topbar from '../../components/Topbar.jsx'
 import Footer from '../../components/Footer.jsx'
 import Home, { HOME_SECTIONS } from '../../pages/Home.jsx'
-import Kalendarz from '../../pages/Kalendarz.jsx'
+import Warsztaty from '../../pages/Warsztaty.jsx'
+import Oferta from '../../pages/Oferta.jsx'
+import Voucher from '../../pages/Voucher.jsx'
 import Sklep from '../../pages/Sklep.jsx'
+import Kontakt from '../../pages/Kontakt.jsx'
+import { OFFERS } from '../../data/offers.js'
+import { offerLabel } from '../ui.jsx'
 import Legal from '../../pages/Legal.jsx'
 
 // Visual editor: the real site renders inside the panel; every text is click-to-edit,
 // images are replaceable, lists get +/−/↑↓, home sections can be hidden or reordered.
 const PAGES = [
   ['home', 'Главная'],
-  ['kalendarz', 'Календарь'],
+  ['warsztaty', 'Каталог'],
+  ['oferta', 'Занятие'],
+  ['voucher', 'Сертификат'],
   ['sklep', 'Магазин'],
+  ['kontakt', 'Контакты'],
   ['privacy', 'Политика прив.'],
   ['cookies', 'Cookies'],
   ['terms', 'Регуламин'],
 ]
-const SECTION_LABELS = { hero: 'Hero', voucher: 'Voucher', formats: 'Форматы 01/02/03', band: 'Фраза', terms: 'Ближайшие даты', steps: 'Как это работает', master: 'Мастер и студия', gallery: 'Галерея', pricing: 'Цены', facts: 'Факты', cta: 'Призыв' }
-const IMAGE_KEYS = [['master', 'Фото мастера'], ['voucher', 'Voucher · фото'], ['band', 'Форматы · фото'], ['hero_1', 'Фраза · круглое фото']]
+const SECTION_LABELS = { hero: 'Hero', band: 'Фраза', partner: 'Как мы работаем (студия)', formats: 'Форматы 01–04', steps: 'Как это работает', master: 'Мастер', voucher: 'Сертификат', gallery: 'Галерея', pricing: 'Цены', where: 'Адреса студии', facts: 'Факты', cta: 'Призыв' }
+const IMAGE_KEYS = [['master', 'Фото мастера'], ['band', 'Форматы · фото'], ['hero_1', 'Фраза · круглое фото'], ['s_studio', 'Студия'], ['s_hand', 'Ручная лепка'], ['s_wheel', 'Гончарный круг'], ['s_paint', 'Роспись'], ['s_kids', 'Дети и семьи']]
 
 function setIn(obj, path, value) {
   if (path.length === 0) return value
@@ -40,6 +48,7 @@ export default function Editor() {
   const [settings, setSettings] = useState(null)
   const [lang, setLang] = useState('pl')
   const [page, setPage] = useState('home')
+  const [offerId, setOfferId] = useState(OFFERS[0].id)
   const [device, setDevice] = useState('desktop')
   const [dirty, setDirty] = useState({})
   const [layoutDirty, setLayoutDirty] = useState(false)
@@ -52,8 +61,9 @@ export default function Editor() {
 
   const load = useCallback(() => {
     Promise.all([fetchContent(), loadSettings(token, true)]).then(([db, s]) => {
-      setDocs({ ru: deepMerge(BUNDLED.ru, db.ru), pl: deepMerge(BUNDLED.pl, db.pl), en: deepMerge(BUNDLED.en, db.en) })
-      setSettings({ images: s.images || {}, layout: s.layout || {}, studio: s.studio || {}, shop: s.shop || {} })
+      // docs from before the 2026-10 rewrite are ignored, exactly as on the site
+      setDocs({ ru: liveDoc('ru', db.ru), pl: liveDoc('pl', db.pl), en: liveDoc('en', db.en) })
+      setSettings({ images: s.images || {}, layout: s.layout || {}, studio: s.studio || {}, partner: s.partner || {} })
       setDirty({})
       setLayoutDirty(false)
     })
@@ -151,7 +161,7 @@ export default function Editor() {
 
   const selValue = selected ? pick(docs[lang], selected) : null
   const ed = { lang, selected, select: setSelected, set, pickImage, resetImage, busyImage, moveSection, toggleSection }
-  const override = { lang, setLang, dicts: docs, images: settings.images, layout: settings.layout, studio: settings.studio, shop: settings.shop }
+  const override = { lang, setLang, dicts: docs, images: settings.images, layout: settings.layout, studio: settings.studio, partner: settings.partner }
 
   return (
     <div className="edt">
@@ -176,8 +186,11 @@ export default function Editor() {
                 <Topbar />
                 <main className="page">
                   {page === 'home' && <Home />}
-                  {page === 'kalendarz' && <Kalendarz />}
+                  {page === 'warsztaty' && <Warsztaty />}
+                  {page === 'oferta' && <Oferta id={offerId} />}
+                  {page === 'voucher' && <Voucher />}
                   {page === 'sklep' && <Sklep />}
+                  {page === 'kontakt' && <Kontakt />}
                   {page === 'privacy' && <Legal doc="privacy" />}
                   {page === 'cookies' && <Legal doc="cookies" />}
                   {page === 'terms' && <Legal doc="terms" />}
@@ -194,6 +207,15 @@ export default function Editor() {
           <h4>Как это работает</h4>
           <p className="edt__hint">Кликни на любой текст на странице и печатай. Enter — готово, Esc — отмена. Абзацы принимают переносы. Наведи на карточку — появятся стрелки и «✕». Фото — кнопка «Заменить» на картинке. Всё уходит на сайт после «Опубликовать».</p>
         </div>
+        {page === 'oferta' && (
+          <div>
+            <h4>Какое занятие</h4>
+            <select className="edt__pick" value={offerId} onChange={(e) => { setOfferId(e.target.value); setSelected('') }}>
+              {OFFERS.map((o) => <option key={o.id} value={o.id}>{offerLabel(o.id)}</option>)}
+            </select>
+            <p className="edt__hint">Цена и ссылка кнопки — во вкладке «Партнёр → Предложения и цены».</p>
+          </div>
+        )}
         {page === 'home' && (
           <div>
             <h4>Секции главной</h4>
@@ -230,7 +252,7 @@ export default function Editor() {
               {settings.images[k] && <button onClick={() => resetImage(k)} title="Сброс">↺</button>}
             </div>
           ))}
-          <p className="edt__hint">Фото студии для галереи — во вкладке «Галерея».</p>
+          <p className="edt__hint">Любое фото на странице можно заменить и кнопкой «Заменить» прямо на нём. Фото для галереи — во вкладке «Галерея».</p>
         </div>
         <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={onFile} />
       </aside>
@@ -238,10 +260,11 @@ export default function Editor() {
       {help && (
         <Modal title="Редактор сайта" onClose={() => setHelp(false)}>
           <p>• <b>Текст</b> — клик и печатай прямо на странице. Заголовки однострочные (Enter завершает), абзацы многострочные.</p>
-          <p>• <b>Списки</b> (форматы, шаги, цены, факты, карточки) — наведи на элемент: ↑ ↓ меняют порядок, ✕ удаляет, «+ добавить» внизу списка.</p>
+          <p>• <b>Списки</b> (шаги, факты, карточки, «в цене») — наведи на элемент: ↑ ↓ меняют порядок, ✕ удаляет, «+ добавить» внизу списка.</p>
           <p>• <b>Секции главной</b> — панель справа: порядок и видимость. Скрытая секция не показывается на сайте.</p>
           <p>• <b>Языки</b> — PL / RU / EN редактируются отдельно. Точка у языка = есть несохранённые правки.</p>
           <p>• <b>Фото</b> — заменяются сразу (сжимаются в WebP). Тексты уходят на сайт после «Опубликовать».</p>
+          <p>• <b>Цены и ссылки</b> на студию здесь не правятся — они во вкладке «Партнёр → Предложения и цены».</p>
           <p>• В легальных текстах <code>{'{company} {address} {email}'}</code> подставляются из «Настроек».</p>
         </Modal>
       )}

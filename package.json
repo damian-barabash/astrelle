@@ -11,7 +11,8 @@
     "goats": "node scripts/goats.mjs",
     "glb": "node scripts/glb.mjs",
     "brand": "node scripts/brand.mjs",
-    "twins": "node scripts/twins.mjs"
+    "twins": "node scripts/twins.mjs",
+    "stock": "node scripts/stock.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^9.114.0",

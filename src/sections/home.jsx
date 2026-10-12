@@ -1,15 +1,27 @@
-import { Fragment, lazy, Suspense, useEffect, useState } from 'react'
+import { Fragment, lazy, Suspense } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useT } from '../i18n/index.jsx'
 import { T, Img, List, Section, useEdit } from '../content/edit.jsx'
-import { listEvents } from '../lib/supabase.js'
 import Goat from '../components/Goat.jsx'
-import { Shape, Print, Hands, Spark } from '../components/Shapes.jsx'
+import Out, { Tel } from '../components/Out.jsx'
+import PhotoArt from '../components/PhotoArt.jsx'
+import { Shape, Print, Hands, Spark, Seal } from '../components/Shapes.jsx'
+import { OFFERS, PLACES, withOverrides, priceText } from '../data/offers.js'
 // three.js is ~300 KB gzipped — load it only on pages that actually show a model
 const HeroMug = lazy(() => import('../three/HeroMug.jsx'))
 
-const IMG = (n) => `/assets/img/photo-${n}.webp`
 const pad2 = (n) => String(n + 1).padStart(2, '0')
+
+// offers as the admin left them (price / link overrides, hidden ones dropped)
+export function useOffers() {
+  const { partner } = useT()
+  return withOverrides(OFFERS, partner)
+}
+// "od 220 zł" for a whole group: its cheapest offer
+function groupFrom(offers, group, from) {
+  const nums = offers.filter((o) => o.group === group && !o.soon).map((o) => Number(o.price)).filter((n) => n > 0)
+  return nums.length ? `${from} ${Math.min(...nums)} zł` : ''
+}
 
 /* ---------------- Hero: two short lines + paper-cut pots with the 3D mug in front ---------------- */
 export function Hero() {
@@ -35,12 +47,12 @@ export function Hero() {
             <T k="hero.p2" as="p" multiline />
           </div>
           <div className="hero__actions">
-            <NavLink className="btn btn--primary btn--lg" to="/kalendarz">
+            <NavLink className="btn btn--primary btn--lg" to="/warsztaty">
               <T k="hero.cta" />
             </NavLink>
-            <a className="btn btn--lg" href="#pricing">
-              <T k="hero.cta2" />
-            </a>
+            <Out className="btn btn--lg" to="schedule" place="hero">
+              <T k="hero.cta2" /> ↗
+            </Out>
           </div>
         </div>
         <div className="hero__art" aria-hidden="true">
@@ -73,9 +85,9 @@ export function Band() {
   const at = { [Math.max(0, Math.round(n * 0.2) - 1)]: 'jar', [Math.max(1, Math.round(n * 0.5) - 1)]: 'photo', [Math.max(2, Math.round(n * 0.8) - 1)]: 'goat' }
   const deco = (kind) =>
     kind === 'jar' ? (
-      <Shape name="jar" className="say__obj say__obj--jar" />
+      <Shape name="teapot" className="say__obj say__obj--jar" />
     ) : kind === 'photo' ? (
-      <Img k="hero_1" fallback={IMG(1)} className="say__obj say__obj--photo" alt="" />
+      <Img k="hero_1" fallback="/assets/img/s-hand-sm.webp" className="say__obj say__obj--photo" alt="" />
     ) : (
       <Goat n={13} className="say__obj say__obj--goat" />
     )
@@ -100,136 +112,101 @@ export function Band() {
   )
 }
 
-/* ---------------- Voucher: the gift card ---------------- */
-export function Voucher() {
+/* ---------------- Partner: who we are, where the classes happen, who sells them ---------------- */
+const POINT_SHAPES = ['pin', 'arch', 'cup']
+export function Partner() {
+  const { t } = useT()
   return (
-    <Section id="voucher" label="Voucher" className="vou">
-      <div className="container vou__in">
-        <div className="vou__card">
-          <Img k="voucher" fallback="/assets/img/voucher.webp" className="vou__img" alt="" />
-          <Goat n={17} className="vou__goat" />
+    <Section id="partner" label="Как мы работаем (партнёр)" className="duo">
+      <div className="container duo__in">
+        <div className="duo__art">
+          <PhotoArt photo="bench" shape="vase" variant="a" />
+          <Seal text={t('partner.seal')} className="duo__seal">
+            <path d="M0-30c2 20 9 27 30 30-21 3-28 10-30 30-2-20-9-27-30-30 21-3 28-10 30-30z" fill="currentColor" />
+          </Seal>
         </div>
-        <div className="vou__body">
-          <span className="label"><T k="voucher.label" /></span>
-          <T k="voucher.title" as="h2" className="h2" />
-          <T k="voucher.text" as="p" className="vou__text" multiline />
-          <NavLink className="btn" to="/kalendarz#voucher">
-            <T k="voucher.btn" /> →
-          </NavLink>
+        <div className="duo__body">
+          <span className="label"><T k="partner.label" /></span>
+          <T k="partner.title" as="h2" className="h2" />
+          <T k="partner.text" as="p" className="duo__text" multiline />
+          <List
+            k="partner.points"
+            className="duo__points"
+            max={4}
+            template={{ t: '', d: '' }}
+            render={(it, i, p) => (
+              <div className="duo__point" key={i}>
+                <Shape name={POINT_SHAPES[i % POINT_SHAPES.length]} className="duo__ic" />
+                <T k={`${p}.t`} as="h3" />
+                <T k={`${p}.d`} as="p" multiline />
+              </div>
+            )}
+          />
+          <Out className="btn" to="site" place="home-partner">
+            <T k="partner.btn" /> ↗
+          </Out>
         </div>
       </div>
     </Section>
   )
 }
 
-/* ---------------- Formats: numbered cards in a mosaic with pots, a photo and a goat ---------------- */
+/* ---------------- Formats: the four kinds of classes in a mosaic with pots, a photo and a goat ---------------- */
+const KINDS = ['hand', 'wheel', 'paint', 'family']
 export function Formats() {
   const { t } = useT()
-  const count = (t('formats.items') || []).length
+  const offers = useOffers()
   return (
-    <Section id="formats" label="Форматы (01/02/03)" className="fmt">
+    <Section id="formats" label="Форматы (01–04)" className="fmt">
       <div className="container">
-        <T k="formats.label" as="h2" className="h2" />
-        <div className={`fmt__mosaic ${count > 3 ? 'has-4' : ''}`}>
-          <List
-            k="formats.items"
-            className="fmt__grid"
-            max={4}
-            template={{ t: 'Nowy format', d: '', meta: '' }}
-            render={(it, i, p) => (
-              <article className="card fcard" key={i}>
+        <div className="fmt__head">
+          <T k="formats.label" as="h2" className="h2" />
+          <NavLink className="btn btn--sm" to="/warsztaty">
+            <T k="formats.more" /> →
+          </NavLink>
+        </div>
+        <div className="fmt__mosaic has-4">
+          <div className="fmt__grid">
+            {KINDS.map((g, i) => (
+              <article className="card fcard" key={g}>
                 <span className="card__num">{pad2(i)}</span>
-                <T k={`${p}.t`} as="h3" className="fcard__t" />
-                <T k={`${p}.d`} as="p" className="fcard__d" multiline />
+                <T k={`offers.groups.${g}.t`} as="h3" className="fcard__t" />
+                <T k={`offers.groups.${g}.d`} as="p" className="fcard__d" multiline />
                 <div className="fcard__foot">
-                  <T k={`${p}.meta`} as="span" className="fcard__meta" />
-                  <NavLink className="fcard__go" to="/kalendarz" aria-label={t('formats.cta')}>
+                  <span className="fcard__meta">{groupFrom(offers, g, t('offers.from'))}</span>
+                  <NavLink className="fcard__go" to={`/warsztaty#${g}`} aria-label={t(`offers.groups.${g}.t`)}>
                     →
                   </NavLink>
                 </div>
               </article>
-            )}
-          />
-          <div className="fmt__d fmt__d--mug" aria-hidden="true"><Shape name="mug" /></div>
-          <div className="fmt__d fmt__d--photo"><Img k="band" fallback={IMG(6)} className="fmt__photo" alt="" /></div>
+            ))}
+          </div>
+          <div className="fmt__d fmt__d--mug" aria-hidden="true"><Shape name="teapot" /></div>
+          <div className="fmt__d fmt__d--photo"><Img k="band" fallback="/assets/img/s-wheel-sm.webp" className="fmt__photo" alt="" /></div>
           <div className="fmt__d fmt__d--goat" aria-hidden="true"><Goat n={14} /></div>
           <div className="fmt__d fmt__d--pots" aria-hidden="true">
-            <Shape name="jar" />
+            <Shape name="vase" />
             <Shape name="bowl" />
           </div>
-          <div className="fmt__d fmt__d--rings" aria-hidden="true"><Print n={12} seed={4} /></div>
         </div>
-      </div>
-    </Section>
-  )
-}
-
-/* ---------------- Nearest dates: a plain table straight from the calendar ---------------- */
-const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s)
-export function Terms() {
-  const { t, lang } = useT()
-  const ed = useEdit()
-  const [rows, setRows] = useState([])
-  useEffect(() => {
-    let alive = true
-    const now = new Date()
-    listEvents(now.toISOString(), new Date(now.getTime() + 60 * 864e5).toISOString())
-      .then((r) => alive && setRows(r.filter((e) => new Date(e.starts_at) > now).sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at)).slice(0, 5)))
-      .catch(() => {})
-    return () => {
-      alive = false
-    }
-  }, [])
-  // nothing in the calendar yet → the section stays off the site
-  if (rows.length === 0 && !ed) return null
-  const time = (iso) => new Date(iso).toLocaleTimeString(lang, { hour: '2-digit', minute: '2-digit' })
-  return (
-    <Section id="terms" label="Ближайшие даты" className="terms">
-      <div className="container">
-        <div className="terms__head">
-          <T k="terms.title" as="h2" className="h2" />
-          <NavLink className="btn btn--sm" to="/kalendarz">
-            <T k="terms.all" />
+        {/* for those who already throw: the open-studio membership */}
+        <div className="strip">
+          <Shape name="kiln" className="strip__shape" />
+          <div className="strip__text">
+            <T k="formats.stripT" as="h3" />
+            <T k="formats.stripD" as="p" multiline />
+          </div>
+          <NavLink className="btn" to="/warsztaty/membership">
+            <T k="formats.stripBtn" /> →
           </NavLink>
         </div>
-        {rows.length === 0 ? (
-          <p className="terms__empty">Таблица появится на сайте сама, когда в календаре будут опубликованные занятия.</p>
-        ) : (
-          <div className="terms__table" role="table">
-            <div className="terms__row terms__row--head" role="row">
-              <span role="columnheader"><T k="terms.date" /></span>
-              <span role="columnheader"><T k="terms.time" /></span>
-              <span role="columnheader"><T k="terms.what" /></span>
-              <span role="columnheader"><T k="terms.seats" /></span>
-              <span role="columnheader"><T k="terms.price" /></span>
-              <span />
-            </div>
-            {rows.map((e) => {
-              const d = new Date(e.starts_at)
-              const left = Math.max(0, e.capacity - (e.booked || 0))
-              const title = e.title || t(e.type === 'coworking' ? 'calendar.cw' : 'calendar.cls')
-              return (
-                <NavLink className={`terms__row ${left === 0 ? 'is-full' : ''}`} role="row" to="/kalendarz" key={e.id}>
-                  <span className="terms__date" role="cell">
-                    {d.toLocaleDateString(lang, { day: 'numeric', month: 'short' })} <i>{cap(d.toLocaleDateString(lang, { weekday: 'short' }).replace('.', ''))}</i>
-                  </span>
-                  <span className="terms__time" role="cell">{time(e.starts_at)}</span>
-                  <span className="terms__what" role="cell">{title}{e.theme ? ` · ${e.theme}` : ''}</span>
-                  <span className="terms__seats" role="cell">{left === 0 ? t('calendar.full') : left}</span>
-                  <span className="terms__price" role="cell">{e.price || '—'}</span>
-                  <span className="terms__go" role="cell"><span className="btn btn--sm">{left === 0 ? t('calendar.waitlist') : t('calendar.book')}</span></span>
-                </NavLink>
-              )
-            })}
-          </div>
-        )}
       </div>
     </Section>
   )
 }
 
 /* ---------------- Steps: how it works ---------------- */
-const STEP_SHAPES = ['cup', 'plate', 'jar']
+const STEP_SHAPES = ['cup', 'arch', 'jar']
 export function Steps() {
   return (
     <Section id="steps" label="Как это работает" className="steps">
@@ -256,14 +233,14 @@ export function Steps() {
   )
 }
 
-/* ---------------- Master + studio cards ---------------- */
+/* ---------------- Master ---------------- */
 export function Master() {
-  const { studio } = useT()
   return (
-    <Section id="master" label="Мастер и студия" className="team">
+    <Section id="master" label="Мастер" className="team">
       <div className="container team__grid">
         <div className="team__photo-wrap">
-          <Img k="master" fallback={IMG(3)} alt="Stasia Kulik" className="team__photo" />
+          <Img k="master" fallback="/assets/img/photo-3.webp" alt="Stasia Kulik" className="team__photo" />
+          <Print n={9} seed={8} className="team__print" />
           <Goat n={11} className="team__goat" />
         </div>
         <div className="team__body">
@@ -281,11 +258,6 @@ export function Master() {
                 <span className="card__num">{pad2(i)}</span>
                 <T k={`${p}.t`} as="h3" />
                 <T k={`${p}.d`} as="p" multiline />
-                {i === 0 && (
-                  <a className="team__map" href={studio.maps} target="_blank" rel="noreferrer">
-                    <T k="master.map" /> ↗
-                  </a>
-                )}
               </article>
             )}
           />
@@ -295,46 +267,113 @@ export function Master() {
   )
 }
 
-/* ---------------- Pricing: ruled rows ---------------- */
+/* ---------------- Voucher: a paper ticket, sold by the studio ---------------- */
+export function VoucherTicket({ className = '' }) {
+  return (
+    <div className={`tick ${className}`} aria-hidden="true">
+      <Shape name="ticket" className="tick__paper" />
+      <div className="tick__in">
+        <span className="tick__k">Wizards of Art</span>
+        <span className="tick__t">Voucher</span>
+        <span className="tick__k">ceramika · Warszawa</span>
+      </div>
+      <Print n={8} seed={4} className="tick__print" />
+      <Spark className="tick__spark" />
+    </div>
+  )
+}
+export function Voucher() {
+  return (
+    <Section id="voucher" label="Voucher" className="vou">
+      <div className="container vou__in">
+        <div className="vou__card">
+          <VoucherTicket />
+          <Goat n={17} className="vou__goat" />
+        </div>
+        <div className="vou__body">
+          <span className="label"><T k="voucher.label" /></span>
+          <T k="voucher.title" as="h2" className="h2" />
+          <T k="voucher.text" as="p" className="vou__text" multiline />
+          <NavLink className="btn" to="/voucher">
+            <T k="voucher.btn" /> →
+          </NavLink>
+        </div>
+      </div>
+    </Section>
+  )
+}
+
+/* ---------------- Pricing: the studio's price list, every row leads to its page ---------------- */
+const PRICE_GROUPS = ['hand', 'wheel', 'family', 'paint', 'studio']
 export function Pricing() {
+  const { t } = useT()
+  const offers = useOffers()
   return (
     <Section id="pricing" label="Цены" className="price">
       <div className="container">
         <div className="price__head">
           <T k="pricing.title" as="h2" className="h2" />
-          <Shape name="bowl" className="price__shape" />
+          <Shape name="tag" className="price__shape" />
         </div>
-        <List
-          k="pricing.groups"
-          className="price__grid"
-          max={6}
-          template={{ title: 'Nowa grupa', rows: [{ l: '', r: '' }], note: '' }}
-          render={(g, i, p) => (
-            <div className="price__group" key={i}>
-              <T k={`${p}.title`} as="h3" />
-              <List
-                k={`${p}.rows`}
-                className="price__rows"
-                max={12}
-                template={{ l: '', r: '' }}
-                render={(row, j, rp) => (
-                  <div className="price__row" key={j}>
-                    <T k={`${rp}.l`} as="span" className="price__l" />
-                    <T k={`${rp}.r`} as="span" className="price__r" />
-                  </div>
-                )}
-              />
-              <T k={`${p}.note`} as="p" className="price__note" multiline />
-            </div>
-          )}
-        />
+        <div className="price__grid">
+          {PRICE_GROUPS.map((g) => {
+            const rows = offers.filter((o) => o.group === g)
+            if (!rows.length) return null
+            return (
+              <div className="price__group" key={g}>
+                <T k={`offers.groups.${g}.t`} as="h3" />
+                <div className="price__rows">
+                  {rows.map((o) => (
+                    <NavLink className="price__row" to={`/warsztaty/${o.id}`} key={o.id}>
+                      <span className="price__l">{t(`offers.items.${o.id}.t`)}</span>
+                      <span className="price__r">{priceText(o, t('offers.from'))}</span>
+                    </NavLink>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+        <T k="pricing.note" as="p" className="price__note" multiline />
+      </div>
+    </Section>
+  )
+}
+
+/* ---------------- Where: the two studios ---------------- */
+export function Where() {
+  return (
+    <Section id="where" label="Где (адреса)" className="where">
+      <div className="container">
+        <T k="where.title" as="h2" className="h2" />
+        <div className="where__grid">
+          {Object.entries(PLACES).map(([id, pl], i) => (
+            <article className="card where__card" key={id}>
+              <span className="card__num">{pad2(i)}</span>
+              <Shape name="pin" className="where__pin" />
+              <T k={`where.${id}.t`} as="h3" />
+              <p className="where__addr">{pl.street}</p>
+              <T k={`where.${id}.d`} as="p" multiline />
+              <a className="where__map" href={pl.maps} target="_blank" rel="noreferrer">
+                <T k="where.map" /> ↗
+              </a>
+            </article>
+          ))}
+          <div className="where__side">
+            <span className="label"><T k="where.hoursLabel" /></span>
+            <List k="where.hours" className="where__hours" max={7} template="" render={(h, i, p) => <T k={p} as="span" key={i} />} />
+            <span className="label where__lbl2"><T k="where.phoneLabel" /></span>
+            <Tel place="home-where" className="where__tel" />
+            <T k="where.note" as="p" className="where__note" multiline />
+          </div>
+        </div>
       </div>
     </Section>
   )
 }
 
 /* ---------------- Facts strip ---------------- */
-const FACT_SHAPES = ['jar', 'cup', 'bowl', 'mug', 'bottle', 'plate']
+const FACT_SHAPES = ['jar', 'kiln', 'brush', 'mug', 'bottle', 'plate']
 export function Facts() {
   return (
     <Section id="facts" label="Факты" className="facts">
@@ -369,9 +408,9 @@ export function Cta() {
             <T k="cta.title" as="h2" className="h2" />
             <T k="cta.sub" as="p" multiline />
           </div>
-          <NavLink className="btn btn--primary btn--lg" to="/kalendarz">
-            <T k="cta.btn" /> →
-          </NavLink>
+          <Out className="btn btn--primary btn--lg" to="schedule" place="home-cta">
+            <T k="cta.btn" /> ↗
+          </Out>
         </div>
       </div>
     </Section>

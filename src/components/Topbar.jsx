@@ -3,11 +3,14 @@ import { NavLink, useLocation } from 'react-router-dom'
 import { useT, LangSwitch } from '../i18n/index.jsx'
 import { Logo } from './Brand.jsx'
 import Goat from './Goat.jsx'
+import Out from './Out.jsx'
 
 export const NAV = [
   ['/', 'nav.home'],
-  ['/kalendarz', 'nav.calendar'],
+  ['/warsztaty', 'nav.offers'],
+  ['/voucher', 'nav.voucher'],
   ['/sklep', 'nav.shop'],
+  ['/kontakt', 'nav.contact'],
 ]
 
 export default function Topbar() {
@@ -47,9 +50,9 @@ export default function Topbar() {
           </nav>
           <div className="top__right">
             <LangSwitch className="top__lang" />
-            <NavLink className="btn btn--primary btn--sm top__cta" to="/kalendarz">
-              {t('nav.book')}
-            </NavLink>
+            <Out className="btn btn--primary btn--sm top__cta" to="schedule" place="topbar">
+              {t('nav.book')} ↗
+            </Out>
             <button type="button" className={`burger ${open ? 'is-open' : ''}`} aria-label={open ? t('nav.close') : t('nav.menu')} aria-expanded={open} onClick={() => setOpen((o) => !o)}>
               <span />
               <span />
@@ -68,9 +71,9 @@ export default function Topbar() {
           ))}
         </nav>
         <div className="drawer__foot">
-          <NavLink className="btn btn--primary btn--lg" to="/kalendarz" onClick={() => setOpen(false)}>
-            {t('nav.book')}
-          </NavLink>
+          <Out className="btn btn--primary btn--lg" to="schedule" place="drawer">
+            {t('nav.book')} ↗
+          </Out>
           <LangSwitch />
         </div>
         <Goat n={17} className="drawer__goat" />

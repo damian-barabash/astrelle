@@ -6,7 +6,7 @@ import Topbar from './components/Topbar.jsx'
 import Footer from './components/Footer.jsx'
 import Mascot from './Mascot.jsx'
 
-const TITLES = { '/kalendarz': 'nav.calendar', '/sklep': 'nav.shop', '/polityka-prywatnosci': 'footer.privacy', '/cookies': 'footer.cookies', '/regulamin': 'footer.terms' }
+const TITLES = { '/warsztaty': 'nav.offers', '/voucher': 'nav.voucher', '/sklep': 'nav.shop', '/kontakt': 'nav.contact', '/polityka-prywatnosci': 'footer.privacy', '/cookies': 'footer.cookies', '/regulamin': 'footer.terms' }
 
 // Public-site layout: topbar, the routed page, footer, the goat (cookie consent + facts).
 export default function App() {
@@ -37,8 +37,11 @@ export default function App() {
   }, [location.pathname, location.hash])
 
   useEffect(() => {
+    // an offer's own page is titled after the offer
+    const offer = location.pathname.match(/^\/warsztaty\/([\w-]+)/)
+    const name = offer ? t(`offers.items.${offer[1]}.t`) : ''
     const sub = TITLES[location.pathname]
-    document.title = sub ? `${t(sub)} · Astrelle` : t('meta.title')
+    document.title = typeof name === 'string' && name && !name.startsWith('offers.') ? `${name} · Astrelle` : sub ? `${t(sub)} · Astrelle` : t('meta.title')
     const m = document.querySelector('meta[name="description"]')
     if (m) m.setAttribute('content', t('meta.desc'))
   }, [location.pathname, lang, t])

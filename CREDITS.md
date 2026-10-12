@@ -15,6 +15,19 @@ All from **Unsplash** (Unsplash License — free for commercial use, attribution
 Anne Nygård · cafeconcetto · Jocelyn Morales · Pew Nguyen · Tamara Harhai ·
 Taylor Heery · Tom Crew.
 
+## Offer photos (`public/assets/img/s-*.webp`)
+
+All from **Unsplash** (Unsplash License). Sources in `media-src/stock/` (outside git), converted by `npm run stock`:
+
+- `s-wheel`, `s-wheel-group`, `s-wheel-solo`, `s-studio` — **Vitaly Gariev**
+- `s-hand` — **Alex Jones**
+- `s-kids` — **Quino Al**
+- `s-kids-wheel` — **Kadir Celep**
+- `s-pair` — **Lindsey Elsey**
+- `s-mugs` — **Tom Crew**
+- `s-paint` — **Pew Nguyen**
+- `s-bench` — **Taylor Heery**
+
 ## Goat mascots (`public/assets/maskot/goat-01..18.{png,webp}`)
 
 Sliced from an AI-generated icon sheet (OpenArt) into 18 individual transparent
@@ -25,5 +38,5 @@ Original full-resolution sources are kept locally in `media-src/` (outside git).
 
 ## Fonts
 
-- **Geologica** (headlines) and **Onest** (text) — Google Fonts, SIL Open Font License 1.1.
+- **Unbounded** (headlines), **Onest** (text) and **Geologica** (admin panel) — Google Fonts, SIL Open Font License 1.1.
   Loaded from `fonts.googleapis.com` (see `index.html`).

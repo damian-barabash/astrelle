@@ -6,6 +6,8 @@ import { NAV } from './Topbar.jsx'
 import Goat from './Goat.jsx'
 import { Shape, Print, Spark } from './Shapes.jsx'
 import { resetConsent } from '../lib/consent.js'
+import Out, { Tel } from './Out.jsx'
+import { PARTNER, PLACES } from '../data/offers.js'
 
 export default function Footer() {
   const { t, studio } = useT()
@@ -16,9 +18,10 @@ export default function Footer() {
           <div className="foot__brand">
             <Logo className="foot__logo" />
             <T k="footer.tagline" as="p" className="foot__tag" />
-            <NavLink className="btn btn--lg foot__cta" to="/kalendarz">
-              {t('nav.book')} →
-            </NavLink>
+            <Out className="btn btn--lg foot__cta" to="schedule" place="footer">
+              {t('nav.book')} ↗
+            </Out>
+            <T k="footer.partner" as="p" className="foot__note" multiline />
           </div>
           <nav className="foot__col" aria-label="Menu">
             <span className="label">Menu</span>
@@ -38,10 +41,11 @@ export default function Footer() {
             </button>
           </div>
           <div className="foot__col">
-            <span className="label"><T k="footer.contact" /></span>
-            <span>studio AINO</span>
-            <span>{studio.address}</span>
-            {studio.phone ? <a href={`tel:${studio.phone.replace(/\s/g, '')}`}>{studio.phone}</a> : null}
+            <span className="label"><T k="footer.studio" /></span>
+            <Out to="site" place="footer">{PARTNER.name} ↗</Out>
+            <span>{PLACES.zurawia.street}</span>
+            <span>{PLACES.wiolinowa.street}</span>
+            <Tel place="footer" />
             {studio.email ? <a href={`mailto:${studio.email}`}>{studio.email}</a> : null}
             {studio.instagram ? (
               <a href={studio.instagram.startsWith('http') ? studio.instagram : `https://instagram.com/${studio.instagram.replace('@', '')}`} target="_blank" rel="noreferrer">

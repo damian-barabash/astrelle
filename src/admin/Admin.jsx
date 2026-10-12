@@ -5,7 +5,7 @@ import { ToastProvider } from './ui.jsx'
 import { callFn } from '../lib/supabase.js'
 import Login from './Login.jsx'
 import Dashboard from './tabs/Dashboard.jsx'
-import CalendarAdmin from './tabs/CalendarAdmin.jsx'
+import Partner from './tabs/Partner.jsx'
 import Crm from './tabs/Crm.jsx'
 import Editor from './tabs/Editor.jsx'
 import GalleryManage from './tabs/GalleryManage.jsx'
@@ -16,8 +16,8 @@ import './admin.css'
 
 const TABS = [
   { path: '', label: 'Сегодня', C: Dashboard },
-  { path: 'kalendarz', label: 'Календарь', C: CalendarAdmin },
-  { path: 'klienci', label: 'CRM · клиенты', C: Crm, badge: 'pending' },
+  { path: 'partner', label: 'Партнёр · переходы и покупки', C: Partner, badge: 'sales' },
+  { path: 'klienci', label: 'Сообщения', C: Crm, badge: 'leads' },
   { path: 'edytor', label: 'Редактор сайта', C: Editor },
   { path: 'galeria', label: 'Галерея', C: GalleryManage },
   { path: 'analityka', label: 'Аналитика', C: AnalyticsView },
@@ -29,17 +29,20 @@ function Shell() {
   const { admin, loading, logout, token } = useAdmin()
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
-  const [pending, setPending] = useState(0)
+  const [badges, setBadges] = useState({ leads: 0, sales: 0 })
 
-  // badge: requests waiting for an answer (refreshed on navigation + every 2 min)
+  // badges: messages without an answer, purchases from the studio waiting for a look
+  // (refreshed on navigation + every 2 min)
   useEffect(() => {
     if (!token) return
     let alive = true
     const tick = () =>
-      callFn('admin-crm', { action: 'overview', token }).then((r) => {
-        if (!alive || !r.ok) return
-        const n = (r.data.bookings || []).filter((b) => b.status === 'pending').length + (r.data.leads || []).filter((l) => l.status === 'new').length
-        setPending(n)
+      Promise.all([callFn('admin-crm', { action: 'overview', token }), callFn('admin-partner', { action: 'overview', token, days: 1 })]).then(([c, p]) => {
+        if (!alive) return
+        setBadges({
+          leads: c.ok ? (c.data.leads || []).filter((l) => l.status === 'new').length : 0,
+          sales: p.ok ? (p.data.sales || []).filter((x) => x.status === 'new').length : 0,
+        })
       })
     tick()
     const id = setInterval(tick, 120000)
@@ -70,7 +73,7 @@ function Shell() {
           {TABS.map((t) => (
             <NavLink key={t.path} to={`/admin/${t.path}`} end={t.path === ''} className={({ isActive }) => `admin__navbtn ${isActive ? 'is-active' : ''}`}>
               {t.label}
-              {t.badge && pending > 0 ? <span className="admin__badge">{pending}</span> : null}
+              {t.badge && badges[t.badge] > 0 ? <span className="admin__badge">{badges[t.badge]}</span> : null}
             </NavLink>
           ))}
         </nav>
