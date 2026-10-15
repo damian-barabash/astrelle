@@ -11,6 +11,7 @@
     "goats": "node scripts/goats.mjs",
     "glb": "node scripts/glb.mjs",
     "brand": "node scripts/brand.mjs",
+    "og": "node scripts/og.mjs",
     "twins": "node scripts/twins.mjs",
     "stock": "node scripts/stock.mjs"
   },
